@@ -483,7 +483,7 @@ st.markdown(f"""
                 <a href="?menu=management&auth=1" target="_self">➕ Model Management</a>
                 <a href="?menu=docs_write&auth=1" target="_self">➕ Docs</a>
                 <div class="dd-div"></div>
-                <a href="?logout=1" target="_self">🚪 로그아웃</a>
+                <a href="?logout=1" target="_self">로그아웃</a>
             </div></div>
         </div>
     </div>
