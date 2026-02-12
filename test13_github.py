@@ -8,12 +8,7 @@ import uuid
 import base64
 import os
 
-# page_icon 경로는 로컬 경로이므로 클라우드 배포 시 에러가 날 수 있어 예외처리 하거나 제거하는 것이 좋습니다.
-# 여기서는 요청하신 대로 유지하되, 파일이 없을 경우를 대비해 기본 이모지로 대체합니다.
-try:
-    st.set_page_config(page_title="IGLOO AI Model Hub", page_icon=r"D:\Work\16. 모델 팩토리\2.code\photo\page_icon.png", layout="wide")
-except:
-    st.set_page_config(page_title="IGLOO AI Model Hub", page_icon="🧊", layout="wide")
+st.set_page_config(page_title="IGLOO AI Model Hub", page_icon=r"D:\Work\16. 모델 팩토리\2.code\photo\page_icon.png", layout="wide")
 
 # ===== 사용자 설정 =====
 PROFILE_ICON_PATH = ""
@@ -458,16 +453,16 @@ model_id = _g("model_id")
 user_name = st.session_state.user_name or "hub"
 login_time = st.session_state.login_time or "-"
 
-# ===== 네비게이션 (수정: target="_self" 추가, onclick 제거) =====
+# ===== 네비게이션 =====
 def _ac(m): return "act" if menu == m else ""
 st.markdown(f"""
 <div class="top-nav"><div class="nav-inner">
     <div class="nav-left">
-        <a href="?menu=home&auth=1" class="nav-logo-link" target="_self"><div class="logo-t">IGLOO</div><div class="logo-s">AI MODEL HUB</div></a>
+        <a href="?menu=home&auth=1" class="nav-logo-link" target="_parent"><div class="logo-t">IGLOO</div><div class="logo-s">AI MODEL HUB</div></a>
         <div class="nav-menu">
-            <a href="?menu=notice&auth=1" class="{_ac('notice')}" target="_self">공지사항</a>
-            <a href="?menu=models&page=list&auth=1" class="{_ac('models')}" target="_self">Models</a>
-            <a href="?menu=docs&auth=1" class="{_ac('docs')}" target="_self">Docs</a>
+            <a href="?menu=notice&auth=1" class="{_ac('notice')}" target="_parent">공지사항</a>
+            <a href="?menu=models&page=list&auth=1" class="{_ac('models')}" target="_parent">Models</a>
+            <a href="?menu=docs&auth=1" class="{_ac('docs')}" target="_parent">Docs</a>
         </div>
     </div>
     <div class="nav-right">
@@ -480,10 +475,10 @@ st.markdown(f"""
             <div class="dd-wrap"><div class="dd-menu">
                 <div class="dd-ui"><div class="dd-un">🟢 {user_name}</div><div class="dd-ur">IGLOO AI Model Hub</div></div>
                 <div class="dd-lbl">관리</div>
-                <a href="?menu=management&auth=1" target="_self">➕ Model Management</a>
-                <a href="?menu=docs_write&auth=1" target="_self">➕ Docs</a>
+                <a href="?menu=management&auth=1" target="_parent">➕ Model Management</a>
+                <a href="?menu=docs_write&auth=1" target="_parent">➕ Docs</a>
                 <div class="dd-div"></div>
-                <a href="?logout=1" target="_self">로그아웃</a>
+                <a href="?logout=1" target="_parent">🚪 로그아웃</a>
             </div></div>
         </div>
     </div>
@@ -499,11 +494,10 @@ def _ut(d):
 
 def _sc(s): return {'active':'st-a','pending':'st-p','test':'st-t','테스트':'st-t','보류':'st-p'}.get(s,'st-a')
 
-# ===== 모델 카드 생성 (수정: target="_self" 추가, onclick 제거) =====
 def _card(m, created=False):
     tags = "".join([f'<span class="b-threat">{t}</span>' for t in m.get('threat_tags',[])[:3]])
     dt = f"📅 {m.get('created_at','-')}" if created else f"🔄 {_ut(m.get('updated_at',''))}"
-    return f"""<a href="?menu=models&page=detail&model_id={m['id']}&auth=1" class="mc" target="_self">
+    return f"""<a href="?menu=models&page=detail&model_id={m['id']}&auth=1" class="mc" target="_parent">
     <div class="mc-h"><div><div class="mc-t">{m['name']}</div><div class="mc-v">{m['version']} · {m['algorithm']}</div></div>
     <div class="mc-b"><span class="b-log">{m['log_type']}</span><span class="b-type">{m['type']}</span></div></div>
     <div class="mc-d">{m.get('summary','')}</div><div class="mc-th">{tags}</div>
@@ -637,15 +631,13 @@ if menu == "home":
     active = [m for m in store["models"] if m.get('status','active') == 'active']
     cl, cr = st.columns(2)
     with cl:
-        # 수정: target="_self" 추가
-        st.markdown('<div class="sec-h"><div class="sec-t">Recently Added <span class="sec-ts">최근 등록</span></div><a href="?menu=models&page=list&sort=created&auth=1" class="va-link" target="_self">전체보기 →</a></div>', unsafe_allow_html=True)
+        st.markdown('<div class="sec-h"><div class="sec-t">Recently Added <span class="sec-ts">최근 등록</span></div><a href="?menu=models&page=list&sort=created&auth=1" class="va-link" target="_parent">전체보기 →</a></div>', unsafe_allow_html=True)
         for m in sorted(active, key=lambda x: x.get('created_at',''), reverse=True)[:4]:
             st.markdown(_card(m, True), unsafe_allow_html=True)
         if not active:
             st.markdown('<div class="empty"><div class="empty-i">📦</div><div class="empty-t">등록된 모델이 없습니다</div></div>', unsafe_allow_html=True)
     with cr:
-        # 수정: target="_self" 추가
-        st.markdown('<div class="sec-h"><div class="sec-t">Recently Updated <span class="sec-ts">최근 업데이트</span></div><a href="?menu=models&page=list&sort=updated&auth=1" class="va-link" target="_self">전체보기 →</a></div>', unsafe_allow_html=True)
+        st.markdown('<div class="sec-h"><div class="sec-t">Recently Updated <span class="sec-ts">최근 업데이트</span></div><a href="?menu=models&page=list&sort=updated&auth=1" class="va-link" target="_parent">전체보기 →</a></div>', unsafe_allow_html=True)
         for m in sorted(active, key=lambda x: x.get('updated_at',''), reverse=True)[:4]:
             st.markdown(_card(m), unsafe_allow_html=True)
         if not active:
@@ -734,8 +726,7 @@ elif menu == "models" and page == "list":
             ph = '<div class="pg">'
             for pn in range(max(1,cp-2), min(tp,cp+2)+1):
                 u = "?"+"&".join(f"{k}={v}" for k,v in {**bp,"p":str(pn)}.items())
-                # 수정: target="_self" 추가
-                ph += f'<span class="pg-b on">{pn}</span>' if pn==cp else f'<a href="{u}" class="pg-b" target="_self">{pn}</a>'
+                ph += f'<span class="pg-b on">{pn}</span>' if pn==cp else f'<a href="{u}" class="pg-b" target="_parent">{pn}</a>'
             ph += '</div>'
             st.markdown(ph, unsafe_allow_html=True)
 
@@ -750,17 +741,17 @@ elif menu == "models" and page == "detail" and model_id:
             st.markdown(f"# {sel['name']}")
             st.markdown(f'<div style="display:flex;gap:8px;margin:12px 0 20px;flex-wrap:wrap"><span class="b-ver">{sel["version"]}</span><span class="b-log">{sel["log_type"]}</span><span class="b-type">{sel["type"]}</span><span class="b-st {_sc(sel.get("status","active"))}">{sel.get("status","active")}</span></div>', unsafe_allow_html=True)
             st.markdown(f"### {sel.get('summary','')}")
-            st.markdown("#### 🎯 탐지 위협")
+            st.markdown("#### 1.탐지 위협")
             st.markdown(" ".join([f'<span class="b-threat">{t}</span>' for t in sel.get('threat_tags',[])]), unsafe_allow_html=True)
-            st.markdown("#### 📝 상세 설명")
+            st.markdown("#### 2.상세 설명")
             st.write(sel.get('description','상세 설명이 없습니다.'))
             if sel.get('features'):
-                st.markdown("#### 🔍 주요 Features")
+                st.markdown("#### 3.주요 Features")
                 st.markdown(" ".join([f"<span style='background:#f1f5f9;border:1px solid #e2e8f0;padding:6px 12px;border-radius:8px;font-size:.85em;color:#475569;display:inline-block;margin:2px'>{f}</span>" for f in sel['features']]), unsafe_allow_html=True)
         with c2:
             with st.container(border=True):
                 st.markdown("#### ℹ️ 모델 정보")
-                for l,v in [("🧠 알고리즘",sel['algorithm']),("📊 유형",sel['type']),("📋 로그 타입",sel['log_type']),("📦 버전",sel['version']),("💾 크기",sel['size']),("📅 등록일",sel['created_at']),("🔄 업데이트",sel['updated_at'])]:
+                for l,v in [("알고리즘",sel['algorithm']),("유형",sel['type']),("로그 타입",sel['log_type']),("버전",sel['version']),("크기",sel['size']),("등록일",sel['created_at']),("업데이트",sel['updated_at'])]:
                     st.markdown(f"**{l}:** {v}")
             mc1,mc2 = st.columns(2)
             with mc1: st.metric("⬇️ 다운로드", sel['downloads'])
