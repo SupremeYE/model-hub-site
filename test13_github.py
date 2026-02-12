@@ -458,11 +458,11 @@ def _ac(m): return "act" if menu == m else ""
 st.markdown(f"""
 <div class="top-nav"><div class="nav-inner">
     <div class="nav-left">
-        <a href="?menu=home&auth=1" class="nav-logo-link" onclick="event.preventDefault(); window.location.replace(this.href);"><div class="logo-t">IGLOO</div><div class="logo-s">AI MODEL HUB</div></a>
+        <a target="_self" href="?menu=home&auth=1" class="nav-logo-link" onclick="event.preventDefault(); window.location.replace(this.href);"><div class="logo-t">IGLOO</div><div class="logo-s">AI MODEL HUB</div></a>
         <div class="nav-menu">
-            <a href="?menu=notice&auth=1" class="{_ac('notice')}" onclick="event.preventDefault(); window.location.replace(this.href);">공지사항</a>
-            <a href="?menu=models&page=list&auth=1" class="{_ac('models')}" onclick="event.preventDefault(); window.location.replace(this.href);">Models</a>
-            <a href="?menu=docs&auth=1" class="{_ac('docs')}" onclick="event.preventDefault(); window.location.replace(this.href);">Docs</a>
+            <a target="_self" href="?menu=notice&auth=1" class="{_ac('notice')}" onclick="event.preventDefault(); window.location.replace(this.href);">공지사항</a>
+            <a target="_self" href="?menu=models&page=list&auth=1" class="{_ac('models')}" onclick="event.preventDefault(); window.location.replace(this.href);">Models</a>
+            <a target="_self" href="?menu=docs&auth=1" class="{_ac('docs')}" onclick="event.preventDefault(); window.location.replace(this.href);">Docs</a>
         </div>
     </div>
     <div class="nav-right">
@@ -475,10 +475,10 @@ st.markdown(f"""
             <div class="dd-wrap"><div class="dd-menu">
                 <div class="dd-ui"><div class="dd-un">🟢 {user_name}</div><div class="dd-ur">IGLOO AI Model Hub</div></div>
                 <div class="dd-lbl">관리</div>
-                <a href="?menu=management&auth=1" onclick="event.preventDefault(); window.location.replace(this.href);">➕ Model Management</a>
-                <a href="?menu=docs_write&auth=1" onclick="event.preventDefault(); window.location.replace(this.href);">➕ Docs</a>
+                <a target="_self" href="?menu=management&auth=1" onclick="event.preventDefault(); window.location.replace(this.href);">➕ Model Management</a>
+                <a target="_self" href="?menu=docs_write&auth=1" onclick="event.preventDefault(); window.location.replace(this.href);">➕ Docs</a>
                 <div class="dd-div"></div>
-                <a href="?logout=1" onclick="event.preventDefault(); window.location.replace(this.href);">🚪 로그아웃</a>
+                <a target="_self" href="?logout=1" onclick="event.preventDefault(); window.location.replace(this.href);">🚪 로그아웃</a>
             </div></div>
         </div>
     </div>
@@ -497,7 +497,7 @@ def _sc(s): return {'active':'st-a','pending':'st-p','test':'st-t','테스트':'
 def _card(m, created=False):
     tags = "".join([f'<span class="b-threat">{t}</span>' for t in m.get('threat_tags',[])[:3]])
     dt = f"📅 {m.get('created_at','-')}" if created else f"🔄 {_ut(m.get('updated_at',''))}"
-    return f"""<a href="?menu=models&page=detail&model_id={m['id']}&auth=1" class="mc" onclick="event.preventDefault(); window.location.replace(this.href);">
+    return f"""<a target="_self" href="?menu=models&page=detail&model_id={m['id']}&auth=1" class="mc" onclick="event.preventDefault(); window.location.replace(this.href);">
     <div class="mc-h"><div><div class="mc-t">{m['name']}</div><div class="mc-v">{m['version']} · {m['algorithm']}</div></div>
     <div class="mc-b"><span class="b-log">{m['log_type']}</span><span class="b-type">{m['type']}</span></div></div>
     <div class="mc-d">{m.get('summary','')}</div><div class="mc-th">{tags}</div>
@@ -631,13 +631,13 @@ if menu == "home":
     active = [m for m in store["models"] if m.get('status','active') == 'active']
     cl, cr = st.columns(2)
     with cl:
-        st.markdown('<div class="sec-h"><div class="sec-t">Recently Added <span class="sec-ts">최근 등록</span></div><a href="?menu=models&page=list&sort=created&auth=1" class="va-link" onclick="event.preventDefault(); window.location.replace(this.href);">전체보기 →</a></div>', unsafe_allow_html=True)
+        st.markdown('<div class="sec-h"><div class="sec-t">Recently Added <span class="sec-ts">최근 등록</span></div><a target="_self" href="?menu=models&page=list&sort=created&auth=1" class="va-link" onclick="event.preventDefault(); window.location.replace(this.href);">전체보기 →</a></div>', unsafe_allow_html=True)
         for m in sorted(active, key=lambda x: x.get('created_at',''), reverse=True)[:4]:
             st.markdown(_card(m, True), unsafe_allow_html=True)
         if not active:
             st.markdown('<div class="empty"><div class="empty-i">📦</div><div class="empty-t">등록된 모델이 없습니다</div></div>', unsafe_allow_html=True)
     with cr:
-        st.markdown('<div class="sec-h"><div class="sec-t">Recently Updated <span class="sec-ts">최근 업데이트</span></div><a href="?menu=models&page=list&sort=updated&auth=1" class="va-link" onclick="event.preventDefault(); window.location.replace(this.href);">전체보기 →</a></div>', unsafe_allow_html=True)
+        st.markdown('<div class="sec-h"><div class="sec-t">Recently Updated <span class="sec-ts">최근 업데이트</span></div><a target="_self" href="?menu=models&page=list&sort=updated&auth=1" class="va-link" onclick="event.preventDefault(); window.location.replace(this.href);">전체보기 →</a></div>', unsafe_allow_html=True)
         for m in sorted(active, key=lambda x: x.get('updated_at',''), reverse=True)[:4]:
             st.markdown(_card(m), unsafe_allow_html=True)
         if not active:
@@ -726,7 +726,7 @@ elif menu == "models" and page == "list":
             ph = '<div class="pg">'
             for pn in range(max(1,cp-2), min(tp,cp+2)+1):
                 u = "?"+"&".join(f"{k}={v}" for k,v in {**bp,"p":str(pn)}.items())
-                ph += f'<span class="pg-b on">{pn}</span>' if pn==cp else f'<a href="{u}" class="pg-b" onclick="event.preventDefault(); window.location.replace(this.href);">{pn}</a>'
+                ph += f'<span class="pg-b on">{pn}</span>' if pn==cp else f'<a target="_self" href="{u}" class="pg-b" onclick="event.preventDefault(); window.location.replace(this.href);">{pn}</a>'
             ph += '</div>'
             st.markdown(ph, unsafe_allow_html=True)
 
