@@ -713,7 +713,7 @@ elif menu == "models" and page == "list":
         if af:
             st.markdown(f'<div style="background:#f0f9ff;border:1px solid #0ea5e9;border-radius:12px;padding:14px 18px;margin:0 0 20px"><span style="color:#0c4a6e;font-weight:600">🔍 검색 결과: {total}개</span><span style="color:#075985;font-size:.85em;margin-left:12px">{" · ".join(af[:5])}</span></div>', unsafe_allow_html=True)
         else:
-            st.markdown(f"### 📦 전체 모델 ({total}개)")
+            st.markdown(f"### 전체 모델 ({total}개)")
 
         PER = 9
         tp = math.ceil(total/PER) if total > 0 else 1
@@ -931,7 +931,7 @@ elif menu == "models" and page == "json_editor" and model_id:
 
 # ==================== Management ====================
 elif menu == "management":
-    st.markdown("## 🛠️ Model Management")
+    st.markdown("## Model Management")
     st.markdown("<br>", unsafe_allow_html=True)
     tab1,tab2,tab3,tab4 = st.tabs(["➕ 모델 등록","📊 모델 관리","💬 피드백","📋 통계"])
 
@@ -1191,7 +1191,7 @@ elif menu == "management":
 
 # ==================== 공지사항 ====================
 elif menu == "notice":
-    st.markdown("## 📢 공지사항")
+    st.markdown("## 공지사항")
     st.caption("IGLOO AI Model Hub 운영 및 업데이트 공지")
     notices = [
         {'title':'🔔 IGLOO AI Model Hub v2.0 정식 출시','date':'2024-02-11','author':'관리자','content':'전면 개편된 UI/UX, 향상된 검색/필터링, 웹 기반 JSON 편집기, 피드백 시스템.','imp':True},
@@ -1201,13 +1201,13 @@ elif menu == "notice":
     for n in notices:
         with st.container(border=True):
             tc1,tc2 = st.columns([3,1])
-            with tc1: st.markdown(f"### {'🔥 ' if n['imp'] else ''}{n['title']}")
+            with tc1: st.markdown(f"### {n['title']}")
             with tc2: st.markdown(f"**{n['date']}** · {n['author']}")
             with st.expander("자세히 보기", expanded=n['imp']): st.markdown(n['content'])
 
 # ==================== Docs (돌아가기 버튼 제거) ====================
 elif menu == "docs" and _g("page","") != "view":
-    st.markdown("## 📚 Documentation")
+    st.markdown("## Documentation")
     st.caption("IGLOO AI Model Hub 사용 가이드 및 기술 문서")
     st.markdown("<br>", unsafe_allow_html=True)
 
