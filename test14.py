@@ -89,7 +89,6 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ===== 세션 초기화 =====
-# 모델 수정 여부와 수정중인 모델 ID를 추적하기위한 세션 변수 추가
 for k, v in {'is_logged_in': False, 'login_time': None, 'user_name': '', 'show_advanced_filters': False, 'temp_json_editor': {}, 'json_search_term': '', 'edit_mode': False, 'editing_model_id': None, 'open_register_tab': False}.items():
     if k not in st.session_state:
         st.session_state[k] = v
@@ -190,6 +189,64 @@ st.markdown("""
     .dd-un{font-weight:700;color:#1e293b;font-size:.95em}
     .dd-ur{font-size:.78em;color:#64748b;margin-top:2px}
 
+    /* =========================================================
+       ✨ 완벽한 분할 화면(Split-Screen)을 위한 좌측 패널 CSS (최종)
+       ========================================================= */
+    /* 1. 하단 잘림 해결: 부모 컨테이너가 양쪽 패널 높이를 100% 동일하게 강제 스트레치 */
+    div[data-testid="stHorizontalBlock"]:has(.left-panel-marker) {
+        align-items: stretch !important;
+    }
+
+    /* 2. 화면 왼쪽 꽉 채우기 & 찌그러짐 원천 차단 */
+    div[data-testid="stColumn"]:has(.left-panel-marker) {
+        background-color: #2D353E !important;
+        border-radius: 0 !important; 
+        margin-top: -2rem !important; 
+        padding-top: 2rem !important;
+        padding-right: 24px !important;
+        padding-left: 24px !important; /* 패딩을 정상으로 복구해서 필터 안 찌그러지게 함 */
+        padding-bottom: 24px !important;
+        height: 100% !important;
+        min-height: calc(100vh - 85px) !important;
+        
+        /* 🔥 핵심 꼼수: 마진을 조작하지 않고, 그림자를 모니터 왼쪽 끝까지 칠해서 여백을 감쪽같이 덮음 */
+        box-shadow: -25vw 0 0 0 #2D353E, -50vw 0 0 0 #2D353E !important;
+    }
+
+    /* 3. 좌측 패널 텍스트 및 체크박스 색상 (흰색) */
+    div[data-testid="stColumn"]:has(.left-panel-marker) h1,
+    div[data-testid="stColumn"]:has(.left-panel-marker) h2,
+    div[data-testid="stColumn"]:has(.left-panel-marker) h3,
+    div[data-testid="stColumn"]:has(.left-panel-marker) h4,
+    div[data-testid="stColumn"]:has(.left-panel-marker) p,
+    div[data-testid="stColumn"]:has(.left-panel-marker) label,
+    div[data-testid="stColumn"]:has(.left-panel-marker) span,
+    div[data-testid="stColumn"]:has(.left-panel-marker) strong { color: #ffffff !important; }
+    div[data-testid="stColumn"]:has(.left-panel-marker) div[data-testid="stCheckbox"] label span { color: #ffffff !important; }
+
+    /* 4. 폼 컨트롤 (Input, Select) - 흰색 배경에 검은 글씨 */
+    div[data-testid="stColumn"]:has(.left-panel-marker) input,
+    div[data-testid="stColumn"]:has(.left-panel-marker) div[data-baseweb="select"] > div { background-color: #ffffff !important; border-color: #e2e8f0 !important; color: #1e293b !important; border-radius: 8px !important; }
+    div[data-testid="stColumn"]:has(.left-panel-marker) input::placeholder { color: #94a3b8 !important; }
+    div[data-testid="stColumn"]:has(.left-panel-marker) span[data-baseweb="tag"] { background-color: #f1f5f9 !important; color: #1e293b !important; }
+    div[data-testid="stColumn"]:has(.left-panel-marker) hr { border-color: #4b5563 !important; margin: 1.5rem 0 !important; }
+
+    /* =========================================================
+       🔍 Models 메뉴의 검색창 전용 아이콘 삽입 (홈 화면 영향 없음)
+       ========================================================= */
+    div[data-testid="stElementContainer"]:has(.models-search-marker) + div[data-testid="stElementContainer"] div[data-testid="stTextInput"] {
+        position: relative !important;
+    }
+    div[data-testid="stElementContainer"]:has(.models-search-marker) + div[data-testid="stElementContainer"] div[data-testid="stTextInput"] input { 
+        padding-left: 44px !important; 
+        border-radius: 12px !important; 
+    }
+    div[data-testid="stElementContainer"]:has(.models-search-marker) + div[data-testid="stElementContainer"] div[data-testid="stTextInput"]::before { 
+        content: ""; position: absolute; top: 50%; left: 16px; width: 18px; height: 18px; transform: translateY(-50%); z-index: 5; pointer-events: none; 
+        background: no-repeat center / contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23777' stroke-width='2.5'%3E%3Ccircle cx='11' cy='11' r='8'%3E%3C/circle%3E%3Cpath d='m21 21-4.35-4.35'%3E%3C/path%3E%3C/svg%3E"); 
+    }
+
+    /* ========================================================= */
     /* 검색창 기본 리셋 */
     div[data-testid="stTextInput"]>div{background:transparent!important}
     div[data-testid="stTextInput"]{background:transparent!important}
@@ -216,6 +273,63 @@ st.markdown("""
     .sh{text-align:center;margin-bottom:32px;padding:40px 0 20px}
     .sh h1{font-size:2.2em;font-weight:700;color:#1e293b;margin-bottom:12px}
     .sh p{font-size:1.1em;color:#64748b;margin-bottom:28px}
+
+    /* 홈 검색창 UI (💡불필요한 돋보기 아이콘 생성 코드 완전히 제거됨) */
+    div:has(.home-search-marker) + div {
+        position: relative !important;
+        max-width: 560px !important;
+        margin: 0 auto 16px auto !important;
+    }
+    div:has(.home-search-marker) + div [data-testid="stHorizontalBlock"] {
+        gap: 0 !important;
+        align-items: center !important;
+    }
+    div:has(.home-search-marker) + div [data-testid="stHorizontalBlock"] > div:first-child {
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+    }
+    div:has(.home-search-marker) + div [data-testid="stHorizontalBlock"] > div:last-child {
+        width: 36px !important;
+        min-width: 36px !important;
+        margin-left: -44px !important;
+        z-index: 5 !important;
+    }
+    div:has(.home-search-marker) + div input[type="text"] {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 10px 52px 10px 20px !important; /* 왼쪽 돋보기 여백 없앰 */
+        border-radius: 9999px !important;
+        border: solid 1px #333 !important;
+        transition: all .2s ease-in-out !important;
+        outline: none !important;
+        opacity: 0.9 !important;
+        background: #ffffff !important;
+    }
+    div:has(.home-search-marker) + div input[type="text"]::placeholder { color: #777 !important; }
+    div:has(.home-search-marker) + div input[type="text"]:focus {
+        opacity: 1 !important;
+        border-color: #00A98E !important;
+        box-shadow: 0 0 0 3px rgba(0,169,142,.12) !important;
+    }
+    div:has(.home-search-marker) + div .stButton { width: 36px !important; }
+    div:has(.home-search-marker) + div .stButton > button {
+        height: 32px !important;
+        min-height: 32px !important;
+        width: 32px !important;
+        min-width: 32px !important;
+        border-radius: 9999px !important;
+        border: none !important;
+        background: transparent !important;
+        color: #444 !important;
+        padding: 0 !important;
+        font-size: 1.05rem !important;
+        box-shadow: none !important;
+    }
+    div:has(.home-search-marker) + div .stButton > button:hover {
+        background: #f2f4f6 !important;
+        color: #00A98E !important;
+        border: none !important;
+    }
 
     /* 섹션 헤더 */
     .sec-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:12px;border-bottom:2px solid #e5e7eb}
@@ -263,113 +377,20 @@ st.markdown("""
     .stButton>button[kind="primary"]{background:#00A98E!important;border-color:#00A98E!important;color:#fff!important}
     .stButton>button[kind="primary"]:hover{background:#059669!important;border-color:#059669!important}
 
-    /* Docs 게시판 행 */
-    .doc-row{display:flex;align-items:center;padding:14px 0;border-bottom:1px solid #f1f5f9;transition:.2s}
-    .doc-row:hover{background:#f0fdf4}
-
-    /* JSON 에디터 카드 스타일 (흰 배경) */
-    .json-editor-card {
-        padding: 1rem;
-        overflow: hidden;
-        border: 1px solid #e2e8f0;
-        border-radius: 12px;
-        background-color: #ffffff;
-        backdrop-filter: blur(8px);
-    }
-    .json-editor-wrap {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-        position: relative;
-        z-index: 10;
-        border: 1px solid #cbd5e1;
-        border-radius: 8px;
-        overflow: hidden;
-    }
-    .json-editor-terminal {
-        display: flex;
-        flex-direction: column;
-        font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-    }
-    .json-editor-head {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        overflow: hidden;
-        min-height: 40px;
-        padding-inline: 12px;
-        background-color: #f8fafc;
-        border-bottom: 1px solid #e2e8f0;
-    }
-    .json-editor-title {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        height: 2.5rem;
-        user-select: none;
-        font-weight: 600;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        color: #475569;
-        font-size: 0.9em;
-    }
-    .json-editor-title > svg {
-        height: 18px;
-        width: 18px;
-        color: #00A98E;
-    }
-    .json-search-box {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        padding: 4px 8px;
-        border: 1px solid #e2e8f0;
-        border-radius: 6px;
-        background-color: #ffffff;
-    }
-    .json-search-box input {
-        border: none;
-        outline: none;
-        background: transparent;
-        width: 150px;
-        font-size: 0.85em;
-        padding: 2px;
-        color: #475569;
-    }
-    .json-search-box input::placeholder {
-        color: #94a3b8;
-    }
-    .json-editor-body {
-        display: flex;
-        flex-direction: column;
-        position: relative;
-        overflow-x: auto;
-        overflow-y: auto;
-        padding: 1rem;
-        max-height: 600px;
-        line-height: 1.6;
-        color: #1e293b;
-        background-color: #ffffff;
-        white-space: pre;
-        font-size: 14px;
-    }
-    .json-line {
-        display: flex;
-        align-items: flex-start;
-    }
-    .json-line-number {
-        color: #94a3b8;
-        min-width: 40px;
-        text-align: right;
-        padding-right: 12px;
-        user-select: none;
-        font-size: 0.85em;
-    }
-    .json-line-content {
-        flex: 1;
-    }
-    /* JSON 신택스 하이라이팅 */
+    /* JSON 에디터 스타일 */
+    .json-editor-card { padding: 1rem; overflow: hidden; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff; backdrop-filter: blur(8px); }
+    .json-editor-wrap { display: flex; flex-direction: column; gap: 0.5rem; position: relative; z-index: 10; border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden; }
+    .json-editor-terminal { display: flex; flex-direction: column; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; }
+    .json-editor-head { display: flex; align-items: center; justify-content: space-between; overflow: hidden; min-height: 40px; padding-inline: 12px; background-color: #f8fafc; border-bottom: 1px solid #e2e8f0; }
+    .json-editor-title { display: flex; align-items: center; gap: 8px; height: 2.5rem; user-select: none; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #475569; font-size: 0.9em; }
+    .json-editor-title > svg { height: 18px; width: 18px; color: #00A98E; }
+    .json-search-box { display: flex; align-items: center; gap: 4px; padding: 4px 8px; border: 1px solid #e2e8f0; border-radius: 6px; background-color: #ffffff; }
+    .json-search-box input { border: none; outline: none; background: transparent; width: 150px; font-size: 0.85em; padding: 2px; color: #475569; }
+    .json-search-box input::placeholder { color: #94a3b8; }
+    .json-editor-body { display: flex; flex-direction: column; position: relative; overflow-x: auto; overflow-y: auto; padding: 1rem; max-height: 600px; line-height: 1.6; color: #1e293b; background-color: #ffffff; white-space: pre; font-size: 14px; }
+    .json-line { display: flex; align-items: flex-start; }
+    .json-line-number { color: #94a3b8; min-width: 40px; text-align: right; padding-right: 12px; user-select: none; font-size: 0.85em; }
+    .json-line-content { flex: 1; }
     .json-key { color: #7c3aed; font-weight: 600; }
     .json-string { color: #059669; }
     .json-number { color: #dc2626; }
@@ -377,8 +398,6 @@ st.markdown("""
     .json-null { color: #6b7280; }
     .json-bracket { color: #475569; font-weight: 700; }
     .json-highlight { background-color: #fef3c7; }
-
-    
 </style>
 """, unsafe_allow_html=True)
 
@@ -449,268 +468,119 @@ def _card(m, created=False):
     <span class="b-st {_sc(m.get('status','active'))}">{m.get('status','active')}</span></div></a>"""
 
 def highlight_json(json_str, search_term=""):
-    """JSON 문자열에 신택스 하이라이팅 및 검색 하이라이팅 적용"""
     import re
-    
-    # 라인별로 분할
     lines = json_str.split('\n')
     highlighted_lines = []
-    
     for i, line in enumerate(lines, 1):
-        # 검색어 하이라이팅
         if search_term and search_term in line:
             line = line.replace(search_term, f'<span class="json-highlight">{search_term}</span>')
-        
-        # JSON 신택스 하이라이팅
-        # 키 (따옴표로 둘러싸인 문자열 뒤에 콜론이 오는 경우)
         line = re.sub(r'"([^"]+)"\s*:', r'<span class="json-key">"\1"</span>:', line)
-        # 문자열 값
         line = re.sub(r':\s*"([^"]*)"', r': <span class="json-string">"\1"</span>', line)
-        # 숫자
         line = re.sub(r'\b(\d+\.?\d*)\b', r'<span class="json-number">\1</span>', line)
-        # boolean
         line = re.sub(r'\b(true|false)\b', r'<span class="json-boolean">\1</span>', line)
-        # null
         line = re.sub(r'\bnull\b', r'<span class="json-null">null</span>', line)
-        # 괄호
         line = re.sub(r'([{}[\]])', r'<span class="json-bracket">\1</span>', line)
-        
         highlighted_lines.append(f'<div class="json-line"><span class="json-line-number">{i}</span><span class="json-line-content">{line}</span></div>')
-    
     return '\n'.join(highlighted_lines)
 
-# ==================== 홈 ====================
-if menu == "home":
-    # 홈 화면 전용 스타일
-    st.markdown("""
-    <style>
-    /* 좌측 레일 */
-    .home-left-rail {
-        position: fixed;
-        left: 0;
-        top: 88px;
-        height: calc(100vh - 88px);
-        width: 170px;
-        background: #2D353E;
-        z-index: 1;
-    }
-    .home-page-shell {
-        width: 100%;
-        box-sizing: border-box;
-        padding-left: 170px;
-    }
+# ==========================================
+# 🚀 전체 페이지를 좌우 분할 화면으로 감싸기 (💡 비율 조절 완료)
+# ==========================================
+# 0.5가 너무 좁아서 필터 글씨가 찌그러졌습니다. 1.0 비율로 넉넉하게 숨통을 틔워줍니다!
+hl, hr = st.columns([0.5, 3.5], gap="large")
 
-    /* 홈 검색 헤더 */
-    .sh { text-align:center; margin-bottom:24px; padding:34px 0 14px; }
-    .sh h1 { font-size:2.2em; font-weight:700; color:#1e293b; margin-bottom:10px; }
-    .sh p { font-size:1.05em; color:#64748b; margin-bottom:20px; }
-
-    /* From Uiverse.io by garerim (홈 검색창 적용) */
-    div:has(.home-search-marker) + div {
-        position: relative !important;
-        max-width: 560px !important;
-        margin: 0 auto 16px auto !important;
-    }
-    div:has(.home-search-marker) + div [data-testid="stHorizontalBlock"] {
-        gap: 0 !important;
-        align-items: center !important;
-    }
-    div:has(.home-search-marker) + div [data-testid="stHorizontalBlock"] > div:first-child {
-        flex: 1 1 auto !important;
-        min-width: 0 !important;
-    }
-    div:has(.home-search-marker) + div [data-testid="stHorizontalBlock"] > div:last-child {
-        width: 36px !important;
-        min-width: 36px !important;
-        margin-left: -44px !important;
-        z-index: 5 !important;
-    }
-    div:has(.home-search-marker) + div input[type="text"] {
-        width: 100% !important;
-        max-width: 100% !important;
-        padding: 10px 52px 10px 40px !important;
-        border-radius: 9999px !important;
-        border: solid 1px #333 !important;
-        transition: all .2s ease-in-out !important;
-        outline: none !important;
-        opacity: 0.9 !important;
-        background: #ffffff !important;
-    }
-    div:has(.home-search-marker) + div input[type="text"]::placeholder { color: #777 !important; }
-    div:has(.home-search-marker) + div input[type="text"]:focus {
-        opacity: 1 !important;
-        border-color: #00A98E !important;
-        box-shadow: 0 0 0 3px rgba(0,169,142,.12) !important;
-    }
-    div:has(.home-search-marker) + div::before {
-        content: "";
-        position: absolute;
-        top: 50%;
-        left: 14px;
-        width: 16px;
-        height: 16px;
-        transform: translateY(-50%);
-        background: no-repeat center / contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23777' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'%3E%3C/circle%3E%3Cpath d='m21 21-4.35-4.35'%3E%3C/path%3E%3C/svg%3E");
-        pointer-events: none;
-        z-index: 3;
-    }
-
-    /* 필터 버튼 (검색창 안쪽 우측) */
-    div:has(.home-search-marker) + div .stButton { width: 36px !important; }
-    div:has(.home-search-marker) + div .stButton > button {
-        height: 32px !important;
-        min-height: 32px !important;
-        width: 32px !important;
-        min-width: 32px !important;
-        border-radius: 9999px !important;
-        border: none !important;
-        background: transparent !important;
-        color: #444 !important;
-        padding: 0 !important;
-        font-size: 1.05rem !important;
-        box-shadow: none !important;
-    }
-    div:has(.home-search-marker) + div .stButton > button:hover {
-        background: #f2f4f6 !important;
-        color: #00A98E !important;
-        border: none !important;
-    }
-    </style>
-    """, unsafe_allow_html=True)
+# ----------------- 좌측 패널 (다크 그레이 영역) -----------------
+with hl:
+    # 이 마커가 있어야 CSS가 적용되어 바탕이 어두워집니다.
+    st.markdown('<div class="left-panel-marker"></div>', unsafe_allow_html=True)
     
-    # 홈 화면 전체 컨테이너 시작
-    st.markdown('<div class="home-left-rail"></div><div class="home-page-shell"><div class="home-page-container">', unsafe_allow_html=True)
-    
-    st.markdown('<div class="sh"><h1>어떤 모델을 찾으시나요?</h1><p>IGLOO AI Model Hub에서 보안 위협 탐지 모델을 검색해보세요</p></div>', unsafe_allow_html=True)
-
-    st.markdown('<div class="home-search-marker"></div>', unsafe_allow_html=True)
-    # 검색바와 필터 버튼 일체형 배치
-    col1, col2 = st.columns([1, 0.001])
-
-    with col1:
-        hs = st.text_input("", placeholder="모델명, 알고리즘, 위협 유형으로 검색하세요...", label_visibility="collapsed", key="hs")
-
-    with col2:
-        if st.button("☰", key="hf", help="고급 필터"):
-            st.session_state.show_advanced_filters = not st.session_state.show_advanced_filters
-
-    if hs:
-        st.query_params.update({"menu": "models", "page": "list", "search": hs, "auth": "1"})
-        st.rerun()
-
-    if st.session_state.show_advanced_filters:
-        with st.container(border=True):
-            fc1, fc2, fc3 = st.columns(3)
-            with fc1: sl = st.multiselect("로그 타입", ["WAF","WEB","Firewall","IDS","Syslog","Network","EDR"], key="hl")
-            with fc2: sm = st.multiselect("모델 유형", ["지도학습","비지도학습"], key="hm")
-            with fc3: sth = st.multiselect("위협 유형", ["SQL Injection","DDoS","XSS","Brute Force","Malware","Data Exfiltration","웹쉘","이상 트래픽"], key="ht")
-            if st.button("🔍 모델 검색", type="primary", use_container_width=True):
-                p = {"menu":"models","page":"list","auth":"1"}
-                if sl: p["log_types"]=",".join(sl)
-                if sm: p["model_types"]=",".join(sm)
-                if sth: p["threats"]=",".join(sth)
-                st.query_params.update(p)
-                st.rerun()
-
-    st.markdown('<hr style="border:none;border-top:2px solid #e5e7eb;margin:40px 0 32px;">', unsafe_allow_html=True)
-
-    active = [m for m in store["models"] if m.get('status','active') == 'active']
-    cl, cr = st.columns(2)
-    with cl:
-        st.markdown('<div class="sec-h"><div class="sec-t">Recently Added <span class="sec-ts">최근 등록</span></div><a href="?menu=models&page=list&sort=created&auth=1" class="va-link" target="_parent">전체보기 →</a></div>', unsafe_allow_html=True)
-        for m in sorted(active, key=lambda x: x.get('created_at',''), reverse=True)[:4]:
-            st.markdown(_card(m, True), unsafe_allow_html=True)
-        if not active:
-            st.markdown('<div class="empty"><div class="empty-i">📦</div><div class="empty-t">등록된 모델이 없습니다</div></div>', unsafe_allow_html=True)
-    with cr:
-        st.markdown('<div class="sec-h"><div class="sec-t">Recently Updated <span class="sec-ts">최근 업데이트</span></div><a href="?menu=models&page=list&sort=updated&auth=1" class="va-link" target="_parent">전체보기 →</a></div>', unsafe_allow_html=True)
-        for m in sorted(active, key=lambda x: x.get('updated_at',''), reverse=True)[:4]:
-            st.markdown(_card(m), unsafe_allow_html=True)
-        if not active:
-            st.markdown('<div class="empty"><div class="empty-i">🔄</div><div class="empty-t">업데이트된 모델이 없습니다</div></div>', unsafe_allow_html=True)
-    
-    # 홈 화면 전체 컨테이너 닫기
-    st.markdown('</div></div>', unsafe_allow_html=True)
-
-# ==================== Models (B안) ====================
-elif menu == "models" and page == "list":
-    st.markdown("""
-    <style>
-    .models-left-rail{
-        position: fixed;
-        left: 0;
-        top: 88px;
-        height: calc(100vh - 88px);
-        width: 280px;
-        background: #2D353E;
-        z-index: 1;
-    }
-    .models-page-shell{
-        width: 100%;
-        box-sizing: border-box;
-        padding-left: 280px;
-    }
-    /* 상단 Models 레이아웃의 첫 번째 컬럼(필터)만 정확히 타겟 */
-    div:has(.models-filter-marker) + div > div[data-testid="stHorizontalBlock"] > div:first-child{
-        margin-left: -280px !important;
-        width: 280px !important;
-        min-width: 280px !important;
-        background:#2D353E !important;
-        border-radius: 0 !important;
-        padding: 18px 16px 14px 16px !important;
-        position: sticky !important;
-        top: 96px !important;
-        align-self: flex-start !important;
-    }
-    div:has(.models-filter-marker) + div > div[data-testid="stHorizontalBlock"] > div:nth-child(2){
-        padding-left: 18px !important;
-    }
-    div:has(.models-filter-marker) + div > div[data-testid="stHorizontalBlock"] > div:first-child label,
-    div:has(.models-filter-marker) + div > div[data-testid="stHorizontalBlock"] > div:first-child p,
-    div:has(.models-filter-marker) + div > div[data-testid="stHorizontalBlock"] > div:first-child h1,
-    div:has(.models-filter-marker) + div > div[data-testid="stHorizontalBlock"] > div:first-child h2,
-    div:has(.models-filter-marker) + div > div[data-testid="stHorizontalBlock"] > div:first-child h3,
-    div:has(.models-filter-marker) + div > div[data-testid="stHorizontalBlock"] > div:first-child h4{
-        color:#ffffff !important;
-    }
-    div:has(.models-filter-marker) + div > div[data-testid="stHorizontalBlock"] > div:first-child input,
-    div:has(.models-filter-marker) + div > div[data-testid="stHorizontalBlock"] > div:first-child [data-baseweb="select"] > div{
-        color:#ffffff !important;
-        border-color:#55606b !important;
-        background:#3a4450 !important;
-    }
-    </style>
-    """, unsafe_allow_html=True)
-    st.markdown('<div class="models-left-rail"></div><div class="models-page-shell">', unsafe_allow_html=True)
-
-    url_s = _g("search","")
-    url_l = [x for x in _g("log_types","").split(",") if x]
-    url_t = [x for x in _g("model_types","").split(",") if x]
-    url_th = [x for x in _g("threats","").split(",") if x]
-    url_sort = _g("sort","updated")
-
-    st.markdown('<div class="models-filter-marker"></div>', unsafe_allow_html=True)
-    sb, ct = st.columns([0.001, 1])
-    with sb:
-        st.markdown("#### 📊 로그 타입")
+    # 각 메뉴별로 좌측 패널에 보여줄 내용 분기
+    if menu == "models" and page == "list":
+        st.markdown("#### 📊 필터 옵션")
+        url_l = [x for x in _g("log_types","").split(",") if x]
+        url_t = [x for x in _g("model_types","").split(",") if x]
+        url_th = [x for x in _g("threats","").split(",") if x]
+        url_sort = _g("sort","updated")
+        
+        st.markdown("##### 로그 타입")
         sel_l = st.multiselect("로그", ["WAF","WEB","Firewall","IDS","Syslog","Network","EDR"], default=url_l, key="sl", label_visibility="collapsed")
-        st.markdown("#### 🤖 모델 유형")
+        st.markdown("##### 모델 유형")
         sel_t = st.multiselect("유형", ["지도학습","비지도학습"], default=url_t, key="st2", label_visibility="collapsed")
-        st.markdown("#### 🎯 위협 유형")
+        st.markdown("##### 위협 유형")
         sel_th = st.multiselect("위협", ["SQL Injection","XSS","DDoS","Malware","Data Exfiltration","Brute Force","웹쉘","이상 트래픽","내부정보유출"], default=url_th, key="sth2", label_visibility="collapsed")
         st.markdown("---")
-        st.markdown("#### 📋 정렬")
+        st.markdown("##### 정렬")
         sm = {"최신 업데이트순":"updated","등록일순":"created","다운로드순":"downloads","조회수순":"views","이름순":"name"}
         di = list(sm.values()).index(url_sort) if url_sort in sm.values() else 0
         sb_sort = st.selectbox("정렬", list(sm.keys()), index=di, key="ss", label_visibility="collapsed")
         st.markdown("---")
-        st.markdown("#### 📌 상태")
+        st.markdown("##### 상태")
         sa = st.checkbox("사용 중", True, key="sa")
         ste = st.checkbox("테스트", True, key="ste")
         sp = st.checkbox("보류", False, key="sp")
 
-    with ct:
-        search_q = st.text_input("", placeholder="🔍 모델명, 로그타입, 위협 유형, 설명 등으로 검색...", value=url_s, label_visibility="collapsed", key="ms")
+    elif menu == "docs" and page != "view":
+        st.markdown("#### 📑 문서 카테고리")
+        cats = sorted(set([d['category'] for d in store["docs"]]))
+        sel_cat = st.selectbox("카테고리 선택", ["전체"] + cats, key="dc", label_visibility="collapsed")
+
+# ----------------- 우측 패널 (메인 콘텐츠 영역) -----------------
+with hr:
+    # ==================== 홈 ====================
+    if menu == "home":
+        st.markdown('<div class="sh"><h1>어떤 모델을 찾으시나요?</h1><p>IGLOO AI Model Hub에서 보안 위협 탐지 모델을 검색해보세요</p></div>', unsafe_allow_html=True)
+
+        st.markdown('<div class="home-search-marker"></div>', unsafe_allow_html=True)
+        col1, col2 = st.columns([1, 0.001])
+
+        with col1:
+            hs = st.text_input("", placeholder="모델명, 알고리즘, 위협 유형으로 검색하세요...", label_visibility="collapsed", key="hs")
+
+        with col2:
+            if st.button("☰", key="hf", help="고급 필터"):
+                st.session_state.show_advanced_filters = not st.session_state.show_advanced_filters
+
+        if hs:
+            st.query_params.update({"menu": "models", "page": "list", "search": hs, "auth": "1"})
+            st.rerun()
+
+        if st.session_state.show_advanced_filters:
+            with st.container(border=True):
+                fc1, fc2, fc3 = st.columns(3)
+                with fc1: sl = st.multiselect("로그 타입", ["WAF","WEB","Firewall","IDS","Syslog","Network","EDR"], key="hl")
+                with fc2: sm = st.multiselect("모델 유형", ["지도학습","비지도학습"], key="hm")
+                with fc3: sth = st.multiselect("위협 유형", ["SQL Injection","DDoS","XSS","Brute Force","Malware","Data Exfiltration","웹쉘","이상 트래픽"], key="ht")
+                if st.button("🔍 모델 검색", type="primary", use_container_width=True):
+                    p = {"menu":"models","page":"list","auth":"1"}
+                    if sl: p["log_types"]=",".join(sl)
+                    if sm: p["model_types"]=",".join(sm)
+                    if sth: p["threats"]=",".join(sth)
+                    st.query_params.update(p)
+                    st.rerun()
+
+        st.markdown('<hr style="border:none;border-top:2px solid #e5e7eb;margin:40px 0 32px;">', unsafe_allow_html=True)
+
+        active = [m for m in store["models"] if m.get('status','active') == 'active']
+        cl, cr = st.columns(2)
+        with cl:
+            st.markdown('<div class="sec-h"><div class="sec-t">Recently Added <span class="sec-ts">최근 등록</span></div><a href="?menu=models&page=list&sort=created&auth=1" class="va-link" target="_parent">전체보기 →</a></div>', unsafe_allow_html=True)
+            for m in sorted(active, key=lambda x: x.get('created_at',''), reverse=True)[:4]:
+                st.markdown(_card(m, True), unsafe_allow_html=True)
+            if not active:
+                st.markdown('<div class="empty"><div class="empty-i">📦</div><div class="empty-t">등록된 모델이 없습니다</div></div>', unsafe_allow_html=True)
+        with cr:
+            st.markdown('<div class="sec-h"><div class="sec-t">Recently Updated <span class="sec-ts">최근 업데이트</span></div><a href="?menu=models&page=list&sort=updated&auth=1" class="va-link" target="_parent">전체보기 →</a></div>', unsafe_allow_html=True)
+            for m in sorted(active, key=lambda x: x.get('updated_at',''), reverse=True)[:4]:
+                st.markdown(_card(m), unsafe_allow_html=True)
+            if not active:
+                st.markdown('<div class="empty"><div class="empty-i">🔄</div><div class="empty-t">업데이트된 모델이 없습니다</div></div>', unsafe_allow_html=True)
+
+    # ==================== Models 리스트 ====================
+    elif menu == "models" and page == "list":
+        # CSS가 돋보기 아이콘을 넣을 수 있도록 마커 추가
+        st.markdown('<div class="models-search-marker"></div>', unsafe_allow_html=True) 
+        url_s = _g("search","")
+        search_q = st.text_input("", placeholder="모델명, 로그타입, 위협 유형, 설명 등으로 검색...", value=url_s, label_visibility="collapsed", key="ms")
 
         allowed = []
         if sa: allowed.append('active')
@@ -765,85 +635,99 @@ elif menu == "models" and page == "list":
                 ph += f'<span class="pg-b on">{pn}</span>' if pn==cp else f'<a href="{u}" class="pg-b" target="_parent">{pn}</a>'
             ph += '</div>'
             st.markdown(ph, unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
 
-# ==================== 모델 상세 (돌아가기 버튼 제거) ====================
-elif menu == "models" and page == "detail" and model_id:
-    sel = next((m for m in store["models"] if str(m['id']) == str(model_id)), None)
-    if sel:
-        sel['views'] = sel.get('views',0) + 1
+    # ==================== 모델 상세 ====================
+    elif menu == "models" and page == "detail" and model_id:
+        sel = next((m for m in store["models"] if str(m['id']) == str(model_id)), None)
+        if sel:
+            sel['views'] = sel.get('views',0) + 1
 
-        c1, c2 = st.columns([2,1])
-        with c1:
-            st.markdown(f"# {sel['name']}")
-            st.markdown(f'<div style="display:flex;gap:8px;margin:12px 0 20px;flex-wrap:wrap"><span class="b-ver">{sel["version"]}</span><span class="b-log">{sel["log_type"]}</span><span class="b-type">{sel["type"]}</span><span class="b-st {_sc(sel.get("status","active"))}">{sel.get("status","active")}</span></div>', unsafe_allow_html=True)
-            st.markdown(f"### {sel.get('summary','')}")
-            st.markdown("#### 1.탐지 위협")
-            st.markdown(" ".join([f'<span class="b-threat">{t}</span>' for t in sel.get('threat_tags',[])]), unsafe_allow_html=True)
-            st.markdown("#### 2.상세 설명")
-            st.write(sel.get('description','상세 설명이 없습니다.'))
-            if sel.get('features'):
-                st.markdown("#### 주요 Features")
-                st.markdown(" ".join([f"<span style='background:#f1f5f9;border:1px solid #e2e8f0;padding:6px 12px;border-radius:8px;font-size:.85em;color:#475569;display:inline-block;margin:2px'>{f}</span>" for f in sel['features']]), unsafe_allow_html=True)
-        with c2:
-            with st.container(border=True):
-                st.markdown("#### ℹ️ 모델 정보")
-                for l,v in [("알고리즘",sel['algorithm']),("유형",sel['type']),("로그 타입",sel['log_type']),("버전",sel['version']),("크기",sel['size']),("등록일",sel['created_at']),("업데이트",sel['updated_at'])]:
-                    st.markdown(f"**{l}:** {v}")
-            mc1,mc2 = st.columns(2)
-            with mc1: st.metric("⬇️ 다운로드", sel['downloads'])
-            with mc2: st.metric("👁️ 조회수", sel['views'])
-            if sel.get('has_file') and sel['id'] in store["model_files"]:
-                fi = store["model_files"][sel['id']]
-                if st.download_button("⬇️ 다운로드", data=fi['data'], file_name=fi['filename'], mime=fi['type'], use_container_width=True, type="primary"):
-                    sel['downloads'] += 1
-            if st.button("📝 설정 파일 편집", use_container_width=True):
-                st.query_params.update({"menu":"models","page":"json_editor","model_id":str(model_id),"auth":"1"}); st.rerun()
-            with st.expander("💬 피드백"):
-                fr = st.selectbox("평점", [5,4,3,2,1], format_func=lambda x: "⭐"*x)
-                ft = st.text_area("의견", placeholder="이 모델에 대한 의견을 남겨주세요...")
-                if st.button("제출", use_container_width=True):
-                    if ft.strip():
-                        store["feedback"].append({'model_id':sel['id'],'model_name':sel['name'],'rating':fr,'feedback':ft,'timestamp':datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'user':user_name})
-                        st.success("✅ 제출 완료!"); st.rerun()
+            c1, c2 = st.columns([2,1])
+            with c1:
+                st.markdown(f"# {sel['name']}")
+                st.markdown(f'<div style="display:flex;gap:8px;margin:12px 0 20px;flex-wrap:wrap"><span class="b-ver">{sel["version"]}</span><span class="b-log">{sel["log_type"]}</span><span class="b-type">{sel["type"]}</span><span class="b-st {_sc(sel.get("status","active"))}">{sel.get("status","active")}</span></div>', unsafe_allow_html=True)
+                st.markdown(f"### {sel.get('summary','')}")
+                st.markdown("#### 1.탐지 위협")
+                st.markdown(" ".join([f'<span class="b-threat">{t}</span>' for t in sel.get('threat_tags',[])]), unsafe_allow_html=True)
+                st.markdown("#### 2.상세 설명")
+                st.write(sel.get('description','상세 설명이 없습니다.'))
+                if sel.get('features'):
+                    st.markdown("#### 주요 Features")
+                    st.markdown(" ".join([f"<span style='background:#f1f5f9;border:1px solid #e2e8f0;padding:6px 12px;border-radius:8px;font-size:.85em;color:#475569;display:inline-block;margin:2px'>{f}</span>" for f in sel['features']]), unsafe_allow_html=True)
+            with c2:
+                with st.container(border=True):
+                    st.markdown("#### ℹ️ 모델 정보")
+                    for l,v in [("알고리즘",sel['algorithm']),("유형",sel['type']),("로그 타입",sel['log_type']),("버전",sel['version']),("크기",sel['size']),("등록일",sel['created_at']),("업데이트",sel['updated_at'])]:
+                        st.markdown(f"**{l}:** {v}")
+                mc1,mc2 = st.columns(2)
+                with mc1: st.metric("⬇️ 다운로드", sel['downloads'])
+                with mc2: st.metric("👁️ 조회수", sel['views'])
+                if sel.get('has_file') and sel['id'] in store["model_files"]:
+                    fi = store["model_files"][sel['id']]
+                    if st.download_button("⬇️ 다운로드", data=fi['data'], file_name=fi['filename'], mime=fi['type'], use_container_width=True, type="primary"):
+                        sel['downloads'] += 1
+                if st.button("📝 설정 파일 편집", use_container_width=True):
+                    st.query_params.update({"menu":"models","page":"json_editor","model_id":str(model_id),"auth":"1"}); st.rerun()
+                with st.expander("💬 피드백"):
+                    fr = st.selectbox("평점", [5,4,3,2,1], format_func=lambda x: "⭐"*x)
+                    ft = st.text_area("의견", placeholder="이 모델에 대한 의견을 남겨주세요...")
+                    if st.button("제출", use_container_width=True):
+                        if ft.strip():
+                            store["feedback"].append({'model_id':sel['id'],'model_name':sel['name'],'rating':fr,'feedback':ft,'timestamp':datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'user':user_name})
+                            st.success("✅ 제출 완료!"); st.rerun()
 
-        st.markdown("<br>", unsafe_allow_html=True)
-        t1,t2,t3,t4 = st.tabs(["⚙️ 파라미터","📌 필수 필드","🎯 MITRE ATT&CK","📊 데이터셋"])
-        with t1:
-            try: st.json(json.loads(sel.get('parameters','{}')))
-            except: st.code(sel.get('parameters','{}'), language='json')
-        with t2:
-            if sel.get('required_fields'):
-                for f in sel['required_fields']: st.markdown(f"- `{f}`")
-            st.warning("⚠️ 환경별로 로그 필드명이 다를 수 있습니다.")
-        with t3:
-            if sel.get('mitre_tactics'): st.markdown("**전술:** " + ", ".join([f"`{t}`" for t in sel['mitre_tactics']]))
-            if sel.get('mitre_techniques'): st.markdown("**기술:** " + ", ".join([f"`{t}`" for t in sel['mitre_techniques']]))
-        with t4:
-            if sel.get('dataset_settings'): st.json(sel['dataset_settings'])
-    else:
-        st.error("❌ 모델을 찾을 수 없습니다.")
+            st.markdown("<br>", unsafe_allow_html=True)
+            t1,t2,t3,t4 = st.tabs(["⚙️ 파라미터","📌 필수 필드","🎯 MITRE ATT&CK","📊 데이터셋"])
+            with t1:
+                try: st.json(json.loads(sel.get('parameters','{}')))
+                except: st.code(sel.get('parameters','{}'), language='json')
+            with t2:
+                if sel.get('required_fields'):
+                    for f in sel['required_fields']: st.markdown(f"- `{f}`")
+                st.warning("⚠️ 환경별로 로그 필드명이 다를 수 있습니다.")
+            with t3:
+                if sel.get('mitre_tactics'): st.markdown("**전술:** " + ", ".join([f"`{t}`" for t in sel['mitre_tactics']]))
+                if sel.get('mitre_techniques'): st.markdown("**기술:** " + ", ".join([f"`{t}`" for t in sel['mitre_techniques']]))
+            with t4:
+                if sel.get('dataset_settings'): st.json(sel['dataset_settings'])
+        else:
+            st.error("❌ 모델을 찾을 수 없습니다.")
 
-# ==================== JSON 편집기 (개선됨) ====================
-elif menu == "models" and page == "json_editor" and model_id:
-    sel = next((m for m in store["models"] if str(m['id']) == str(model_id)), None)
-    if sel:
-        st.markdown(f"## 📝 설정 파일 편집: {sel['name']}")
-        st.markdown("**임시 편집 모드** — 원본은 변경되지 않습니다. 편집 후 다운로드 버튼을 눌러 저장하세요.")
-        
-        # 사용자 세션별 키
-        tk = f"{user_name}_{model_id}"
-        
-        # 업로드된 JSON 파일에서 초기 데이터 가져오기 (fields 포함)
-        if tk not in st.session_state.temp_json_editor:
-            # 실제 업로드된 JSON 파일 전체를 사용
-            # Management 탭에서 업로드 시 저장된 JSON 데이터 사용
-            if sel['id'] in store["model_files"]:
-                try:
-                    uploaded_json = json.loads(store["model_files"][sel['id']]['data'].decode('utf-8'))
-                    st.session_state.temp_json_editor[tk] = uploaded_json
-                except:
-                    # 파일이 없거나 파싱 실패 시 기본 템플릿 사용
+    # ==================== JSON 편집기 ====================
+    elif menu == "models" and page == "json_editor" and model_id:
+        sel = next((m for m in store["models"] if str(m['id']) == str(model_id)), None)
+        if sel:
+            st.markdown(f"## 📝 설정 파일 편집: {sel['name']}")
+            st.markdown("**임시 편집 모드** — 원본은 변경되지 않습니다. 편집 후 다운로드 버튼을 눌러 저장하세요.")
+            
+            tk = f"{user_name}_{model_id}"
+            
+            if tk not in st.session_state.temp_json_editor:
+                if sel['id'] in store["model_files"]:
+                    try:
+                        uploaded_json = json.loads(store["model_files"][sel['id']]['data'].decode('utf-8'))
+                        st.session_state.temp_json_editor[tk] = uploaded_json
+                    except:
+                        st.session_state.temp_json_editor[tk] = {
+                            "data": [{
+                                "ruleName": sel['name'],
+                                "note": sel.get('summary',''),
+                                "algorithm": sel['algorithm'].replace(" ","").lower(),
+                                "algorithmSettings": json.loads(sel.get('parameters','{}')),
+                                "logType": [sel['log_type'].lower()],
+                                "formatTime": {"unit":"MINUTE","amount":"10"},
+                                "datasetSettings": sel.get('dataset_settings',{}),
+                                "fadingFactor": sel.get('trigger_settings',{}).get('fadingFactor',''),
+                                "boundType": sel.get('trigger_settings',{}).get('boundType',''),
+                                "sensitivity": sel.get('trigger_settings',{}).get('sensitivity',''),
+                                "options": {
+                                    "mitre": [{"tacticsId":t,"techniquesId":""} for t in sel.get('mitre_tactics',[])]
+                                }
+                            }],
+                            "rulegroups": [{"name": sel.get('detection_target','')}],
+                            "fields": []
+                        }
+                else:
                     st.session_state.temp_json_editor[tk] = {
                         "data": [{
                             "ruleName": sel['name'],
@@ -861,621 +745,533 @@ elif menu == "models" and page == "json_editor" and model_id:
                             }
                         }],
                         "rulegroups": [{"name": sel.get('detection_target','')}],
-                        "fields": []  # fields 필드 추가
+                        "fields": []
                     }
-            else:
-                # 기본 템플릿
-                st.session_state.temp_json_editor[tk] = {
-                    "data": [{
-                        "ruleName": sel['name'],
-                        "note": sel.get('summary',''),
-                        "algorithm": sel['algorithm'].replace(" ","").lower(),
-                        "algorithmSettings": json.loads(sel.get('parameters','{}')),
-                        "logType": [sel['log_type'].lower()],
-                        "formatTime": {"unit":"MINUTE","amount":"10"},
-                        "datasetSettings": sel.get('dataset_settings',{}),
-                        "fadingFactor": sel.get('trigger_settings',{}).get('fadingFactor',''),
-                        "boundType": sel.get('trigger_settings',{}).get('boundType',''),
-                        "sensitivity": sel.get('trigger_settings',{}).get('sensitivity',''),
-                        "options": {
-                            "mitre": [{"tacticsId":t,"techniquesId":""} for t in sel.get('mitre_tactics',[])]
-                        }
-                    }],
-                    "rulegroups": [{"name": sel.get('detection_target','')}],
-                    "fields": []
-                }
-        
-        # JSON 에디터 카드
-        st.markdown('<div class="json-editor-card"><div class="json-editor-wrap"><div class="json-editor-terminal">', unsafe_allow_html=True)
-        
-        # 헤더 (제목 + 검색창)
-        st.markdown(f'''
-        <div class="json-editor-head">
-            <div class="json-editor-title">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                    <polyline points="14 2 14 8 20 8"></polyline>
-                    <line x1="12" y1="18" x2="12" y2="12"></line>
-                    <line x1="9" y1="15" x2="15" y2="15"></line>
-                </svg>
-                {sel['name']}_config.json
-            </div>
-            <div class="json-search-box">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <path d="m21 21-4.35-4.35"></path>
-                </svg>
-                <input type="text" placeholder="Search..." id="json-search-input" onkeyup="highlightSearch(this.value)">
-            </div>
-        </div>
-        ''', unsafe_allow_html=True)
-        
-        # JSON 내용을 textarea로 수정 가능하게
-        current_json = json.dumps(st.session_state.temp_json_editor[tk], indent=2, ensure_ascii=False)
-        
-        # 실제 편집 가능한 텍스트 영역
-        edited_json = st.text_area(
-            "JSON 편집",
-            value=current_json,
-            height=500,
-            key=f"json_edit_{tk}",
-            label_visibility="collapsed"
-        )
-        
-        # JSON body (하이라이팅 적용된 미리보기)
-        search_term = st.session_state.get('json_search_term', '')
-        highlighted_html = highlight_json(edited_json, search_term)
-        
-        st.markdown(f'</div></div></div>', unsafe_allow_html=True)
-        
-        # 버튼들
-        c1,c2,c3 = st.columns([2,1,1])
-        with c1:
-            try:
-                pj = json.loads(edited_json)
-                st.success("✅ JSON 유효")
-                st.session_state.temp_json_editor[tk] = pj
-            except json.JSONDecodeError as e:
-                st.error(f"❌ JSON 오류: {e}")
-                pj = None
-        
-        with c2:
-            if st.button("🔄 초기화", key=f"reset_{tk}"):
-                # 초기화: 세션에서 해당 키 삭제하여 다시 로드되도록
-                if tk in st.session_state.temp_json_editor:
-                    del st.session_state.temp_json_editor[tk]
-                st.rerun()
-        
-        with c3:
-            if pj:
-                st.download_button(
-                    "💾 다운로드",
-                    data=json.dumps(pj, indent=2, ensure_ascii=False).encode('utf-8'),
-                    file_name=f"{sel['name'].replace(' ','_')}_config.json",
-                    mime="application/json",
-                    type="primary",
-                    use_container_width=True
-                )
-
-# ==================== Management ====================
-elif menu == "management":
-    st.markdown("## Model Management")
-    st.markdown("<br>", unsafe_allow_html=True)
-    # 수정 버튼 클릭 시 등록 탭(첫 번째 탭)으로 자동 포커스
-    if st.session_state.get('open_register_tab'):
-        st.markdown("""
-        <script>
-        setTimeout(function() {
-            const tabs = window.parent.document.querySelectorAll('[data-baseweb="tab"]');
-            if (tabs && tabs.length > 0) { tabs[0].click(); }
-        }, 80);
-        </script>
-        """, unsafe_allow_html=True)
-        st.session_state.open_register_tab = False
-
-    tab1,tab2,tab3,tab4 = st.tabs(["➕ 모델 등록","📊 모델 관리","💬 피드백","📋 통계"])
-
-    with tab1:
-        # 수정 모드 체크
-        if st.session_state.get('edit_mode') and st.session_state.get('editing_model_id'):
-            edit_model = next((m for m in store["models"] if m['id'] == st.session_state.editing_model_id), None)
-            if edit_model:
-                st.markdown("### ✏️ 모델 수정")
-                st.info(f"'{edit_model['name']}' 모델을 수정하고 있습니다.")
-                
-                # 취소 버튼
-                if st.button("← 수정 취소", key="cancel_edit"):
-                    st.session_state.edit_mode = False
-                    st.session_state.editing_model_id = None
-                    st.rerun()
-            else:
-                st.error("수정할 모델을 찾을 수 없습니다.")
-                st.session_state.edit_mode = False
-                st.session_state.editing_model_id = None
-        else:
-            st.markdown("### 새 모델 등록")
-        
-        # 수정 모드가 아닐 때만 등록 방식 선택 표시
-        if not st.session_state.get('edit_mode'):
-            reg = st.radio("등록 방식:", ["🖋️ 수동 입력","📄 JSON 파일 자동 입력"], horizontal=True)
-        else:
-            reg = "🖋️ 수동 입력"  # 수정 모드에서는 수동 입력만
-
-        jd = None
-        if reg == "📄 JSON 파일 자동 입력":
-            st.markdown("#### 1️⃣ JSON 설정 파일 업로드")
-            uj = st.file_uploader("모델 설정 JSON 파일을 업로드하세요", type=['json'], key="json_up")
-            if uj:
-                try:
-                    raw = json.load(uj)
-                    d0 = raw.get('data', [{}])
-                    if isinstance(d0, list): d0 = d0[0] if d0 else {}
-                    rg = raw.get('rulegroups', [{}])
-                    if isinstance(rg, list): rg = rg[0] if rg else {}
-
-                    jd = {
-                        'ruleName': d0.get('ruleName', ''),
-                        'note': d0.get('note', ''),
-                        'ruleGroupName': rg.get('name', '') or d0.get('ruleGroupName', ''),
-                        'algorithm': d0.get('algorithm', ''),
-                        'algorithmSettings': d0.get('algorithmSettings', {}),
-                        'logType': d0.get('logType', []),
-                        'formatTime': d0.get('formatTime', {}),
-                        'datasetAnalyzeType': d0.get('datasetAnalyzeType', ''),
-                        'datasetSettings': d0.get('datasetSettings', {}),
-                        'fadingFactor': d0.get('fadingFactor', ''),
-                        'boundType': d0.get('boundType', ''),
-                        'sensitivity': d0.get('sensitivity', ''),
-                        'mitre_list': d0.get('options', {}).get('mitre', []),
-                        'fields': raw.get('fields', []),
-                        'raw_json': raw  # 전체 JSON 저장
-                    }
-                    st.session_state['_jd_cache'] = jd
-                    st.success(f"✅ 파일 로드 완료! 모델명: **{jd['ruleName']}**")
-                    with st.expander("📋 파싱된 주요 정보"):
-                        st.json({k:v for k,v in jd.items() if k not in ['fields', 'raw_json']})
-                except Exception as e:
-                    st.error(f"❌ JSON 파싱 오류: {e}")
-            elif '_jd_cache' in st.session_state:
-                jd = st.session_state['_jd_cache']
-            st.markdown("#### 2️⃣ 자동 입력된 정보 확인 및 수정")
-        else:
-            st.markdown("#### 모델 정보 입력")
-            if '_jd_cache' in st.session_state:
-                del st.session_state['_jd_cache']
-
-        edit_model = None
-        if st.session_state.get('edit_mode') and st.session_state.get('editing_model_id'):
-            edit_model = next((m for m in store["models"] if m['id'] == st.session_state.editing_model_id), None)
-
-        # edit_model이 있으면 기존 값, 없으면 JSON 값 또는 빈 값
-        with st.form("reg_form"):
-            c1, c2 = st.columns(2)
-            with c1:
-                # 모델명
-                default_name = edit_model['name'] if edit_model else (jd['ruleName'] if jd else '')
-                model_name = st.text_input("모델명 *", value=default_name)
-                
-                # 탐지 목적
-                default_target = edit_model.get('detection_target', '') if edit_model else (jd['ruleGroupName'] if jd else '')
-                detection_target = st.text_input("탐지 목적 *", value=default_target)
-                
-                # 버전
-                default_version = edit_model.get('version', 'v1.0.0') if edit_model else "v1.0.0"
-                model_version = st.text_input("버전 *", value=default_version)
-
-                # 모델 유형
-                type_opts = ["지도학습","비지도학습"]
-                auto_type_idx = 0
-                if edit_model:
-                    # 수정 모드: 기존 모델의 타입으로 설정
-                    if edit_model.get('type') in type_opts:
-                        auto_type_idx = type_opts.index(edit_model['type'])
-                elif jd:
-                    # JSON 모드: JSON 알고리즘으로 추론
-                    alg = jd.get('algorithm','').lower()
-                    if alg in ['randomforest','svm','logisticregression','xgboost','decisiontree']:
-                        auto_type_idx = 0
-                    elif alg in ['isolationforest','robustrandomcutforest','rrcf','autoencoder','dbscan','oneclasssvm']:
-                        auto_type_idx = 1
-                model_type = st.selectbox("모델 유형 *", type_opts, index=auto_type_idx)
-
-                # 알고리즘
-                alg_map = {
-                    "지도학습": ["Random Forest","SVM","Logistic Regression","XGBoost","Decision Tree"],
-                    "비지도학습": ["RRCF","Isolation Forest","Autoencoder","DBSCAN","One-Class SVM"]
-                }
-                auto_alg_idx = 0
-                if edit_model:
-                    # 수정 모드: 기존 알고리즘으로 설정
-                    if edit_model.get('algorithm') in alg_map[model_type]:
-                        auto_alg_idx = alg_map[model_type].index(edit_model['algorithm'])
-                elif jd:
-                    # JSON 모드
-                    name_map = {'robustrandomcutforest':'RRCF','rrcf':'RRCF','isolationforest':'Isolation Forest','randomforest':'Random Forest','svm':'SVM','xgboost':'XGBoost','autoencoder':'Autoencoder','dbscan':'DBSCAN','decisiontree':'Decision Tree','logisticregression':'Logistic Regression','oneclasssvm':'One-Class SVM'}
-                    mapped = name_map.get(jd.get('algorithm','').lower(), '')
-                    if mapped in alg_map[model_type]:
-                        auto_alg_idx = alg_map[model_type].index(mapped)
-                algorithm = st.selectbox("알고리즘 *", alg_map[model_type], index=auto_alg_idx)
-
-            with c2:
-                # 로그 타입
-                log_opts = ["WAF","WEB","Firewall","IDS","Syslog","Network","EDR"]
-                auto_log_idx = 0
-                if edit_model:
-                    # 수정 모드: 기존 로그 타입으로 설정
-                    if edit_model.get('log_type') in log_opts:
-                        auto_log_idx = log_opts.index(edit_model['log_type'])
-                elif jd and jd.get('logType'):
-                    # JSON 모드
-                    lt = jd['logType'][0].lower() if isinstance(jd['logType'], list) and jd['logType'] else ''
-                    lmap = {'fw':'Firewall','waf':'WAF','web':'WEB','ids':'IDS','ips':'IDS','syslog':'Syslog','network':'Network','edr':'EDR'}
-                    ml = lmap.get(lt, '')
-                    if ml in log_opts: auto_log_idx = log_opts.index(ml)
-                log_type = st.selectbox("로그 타입 *", log_opts, index=auto_log_idx)
-
-                # 위협 태그
-                threat_options = ["SQL Injection","XSS","DDoS","Malware","Data Exfiltration","Brute Force","웹쉘","이상 트래픽","내부정보유출","Command Injection"]
-                default_threats = edit_model.get('threat_tags', []) if edit_model else []
-                # 기존 모델에만 있는 커스텀 태그(예: Web Attack)도 옵션에 포함해 예외를 방지
-                for tag in default_threats:
-                    if tag not in threat_options:
-                        threat_options.append(tag)
-                threat_tags = st.multiselect("위협 태그 *", threat_options, default=default_threats)
-
-                # MITRE Tactics
-                m_tactics_val = ''
-                if edit_model:
-                    m_tactics_val = ', '.join(edit_model.get('mitre_tactics', []))
-                elif jd and jd.get('mitre_list') and isinstance(jd['mitre_list'], list):
-                    tacs = [m.get('tacticsId','') for m in jd['mitre_list'] if isinstance(m,dict) and m.get('tacticsId')]
-                    m_tactics_val = ', '.join(tacs)
-                mitre_tactics = st.text_input("MITRE Tactics", value=m_tactics_val)
-                
-                # MITRE Techniques
-                m_tech_val = ''
-                if edit_model:
-                    m_tech_val = ', '.join(edit_model.get('mitre_techniques', []))
-                elif jd and jd.get('mitre_list') and isinstance(jd['mitre_list'], list):
-                    techs = [m.get('techniquesId','') for m in jd['mitre_list'] if isinstance(m,dict) and m.get('techniquesId')]
-                    m_tech_val = ', '.join(techs)
-                mitre_techniques = st.text_input("MITRE Techniques", value=m_tech_val)
-
-                # 한줄 설명
-                default_summary = edit_model.get('summary', '') if edit_model else (jd['note'] if jd else '')
-                summary = st.text_input("한줄 설명 *", value=default_summary)
-                
-                # 상태
-                status_opts = ["active","pending","test"]
-                status_idx = 0
-                if edit_model and edit_model.get('status') in status_opts:
-                    status_idx = status_opts.index(edit_model['status'])
-                model_status = st.selectbox("상태 *", status_opts, index=status_idx, format_func=lambda x: {"active":"사용","pending":"보류","test":"테스트"}[x])
-
-            # 상세 설명
-            default_desc = edit_model.get('description', '') if edit_model else ''
-            detailed_desc = st.text_area("상세 설명", value=default_desc, height=80)
             
-            uploaded_file = st.file_uploader("모델 파일 업로드", type=['pkl','h5','pt','pth','onnx','joblib','json'], key="mf_up")
+            st.markdown('<div class="json-editor-card"><div class="json-editor-wrap"><div class="json-editor-terminal">', unsafe_allow_html=True)
+            
+            st.markdown(f'''
+            <div class="json-editor-head">
+                <div class="json-editor-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="12" y1="18" x2="12" y2="12"></line>
+                        <line x1="9" y1="15" x2="15" y2="15"></line>
+                    </svg>
+                    {sel['name']}_config.json
+                </div>
+                <div class="json-search-box">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                    <input type="text" placeholder="Search..." id="json-search-input" onkeyup="highlightSearch(this.value)">
+                </div>
+            </div>
+            ''', unsafe_allow_html=True)
+            
+            current_json = json.dumps(st.session_state.temp_json_editor[tk], indent=2, ensure_ascii=False)
+            
+            edited_json = st.text_area(
+                "JSON 편집",
+                value=current_json,
+                height=500,
+                key=f"json_edit_{tk}",
+                label_visibility="collapsed"
+            )
+            
+            search_term = st.session_state.get('json_search_term', '')
+            highlighted_html = highlight_json(edited_json, search_term)
+            
+            st.markdown(f'</div></div></div>', unsafe_allow_html=True)
+            
+            c1,c2,c3 = st.columns([2,1,1])
+            with c1:
+                try:
+                    pj = json.loads(edited_json)
+                    st.success("✅ JSON 유효")
+                    st.session_state.temp_json_editor[tk] = pj
+                except json.JSONDecodeError as e:
+                    st.error(f"❌ JSON 오류: {e}")
+                    pj = None
+            
+            with c2:
+                if st.button("🔄 초기화", key=f"reset_{tk}"):
+                    if tk in st.session_state.temp_json_editor:
+                        del st.session_state.temp_json_editor[tk]
+                    st.rerun()
+            
+            with c3:
+                if pj:
+                    st.download_button(
+                        "💾 다운로드",
+                        data=json.dumps(pj, indent=2, ensure_ascii=False).encode('utf-8'),
+                        file_name=f"{sel['name'].replace(' ','_')}_config.json",
+                        mime="application/json",
+                        type="primary",
+                        use_container_width=True
+                    )
 
-            with st.expander("🔧 고급 설정 (파라미터 / 데이터셋 / 트리거)", expanded=True if jd else False):
-                ca, cb = st.columns(2)
-                with ca:
-                    # 모델 파라미터
-                    if edit_model:
-                        auto_params = edit_model.get('parameters', '{}')
-                    else:
-                        auto_params = json.dumps(jd['algorithmSettings'], indent=2, ensure_ascii=False) if jd and jd.get('algorithmSettings') else '{}'
-                    model_params = st.text_area("모델 파라미터 (JSON)", value=auto_params, height=120)
+    # ==================== Management ====================
+    elif menu == "management":
+        st.markdown("## Model Management")
+        st.markdown("<br>", unsafe_allow_html=True)
+        if st.session_state.get('open_register_tab'):
+            st.markdown("""
+            <script>
+            setTimeout(function() {
+                const tabs = window.parent.document.querySelectorAll('[data-baseweb="tab"]');
+                if (tabs && tabs.length > 0) { tabs[0].click(); }
+            }, 80);
+            </script>
+            """, unsafe_allow_html=True)
+            st.session_state.open_register_tab = False
 
-                    # 필수 로그 필드
-                    auto_fields = ""
-                    if edit_model:
-                        auto_fields = ", ".join(edit_model.get('required_fields', []))
-                    elif jd and jd.get('datasetSettings'):
-                        ds = jd['datasetSettings']
-                        parts = []
-                        parts.extend(ds.get('features', []))
-                        parts.extend(ds.get('keyFields', []))
-                        parts.extend(ds.get('anomalySubject', ds.get('anomalySplit', [])))
-                        auto_fields = ", ".join(parts) if parts else ""
-                    req_fields = st.text_area("필수 로그 필드 (쉼표 구분)", value=auto_fields or "timestamp, src_ip, dst_ip")
+        tab1,tab2,tab3,tab4 = st.tabs(["➕ 모델 등록","📊 모델 관리","💬 피드백","📋 통계"])
 
-                with cb:
-                    # 데이터셋 설정
-                    auto_ds = {}
-                    if edit_model:
-                        auto_ds = edit_model.get('dataset_settings', {})
-                    elif jd:
-                        auto_ds = {
-                            "logType": jd.get('logType', []),
-                            "formatTime": jd.get('formatTime', {}),
-                            "datasetAnalyzeType": jd.get('datasetAnalyzeType', ''),
-                            "datasetSettings": jd.get('datasetSettings', {})
-                        }
-                    dataset_cfg = st.text_area("데이터셋 설정 (JSON)", value=json.dumps(auto_ds, indent=2, ensure_ascii=False) if auto_ds else '{}', height=120)
-
-                    # 트리거 설정
-                    auto_tr = {}
-                    if edit_model:
-                        auto_tr = edit_model.get('trigger_settings', {})
-                    elif jd:
-                        for k in ['fadingFactor','boundType','sensitivity']:
-                            v = jd.get(k, '')
-                            if v != '': auto_tr[k] = v
-                    trigger_cfg = st.text_area("트리거 설정 (JSON)", value=json.dumps(auto_tr, indent=2, ensure_ascii=False) if auto_tr else '{}', height=100)
-
-            # 버튼 텍스트를 수정 모드에 따라 변경
-            submit_label = "💾 수정 완료" if edit_model else "📦 모델 등록"
-            submitted = st.form_submit_button(submit_label, type="primary", use_container_width=True)
-
-            if submitted:
-                if model_name and detection_target and threat_tags and summary:
-                    
-                    # ========== 수정 모드일 때 ==========
-                    if edit_model:
-                        # 기존 모델 정보 업데이트
-                        edit_model['name'] = model_name
-                        edit_model['algorithm'] = algorithm
-                        edit_model['type'] = model_type
-                        edit_model['log_type'] = log_type
-                        edit_model['version'] = model_version
-                        edit_model['status'] = model_status
-                        edit_model['summary'] = summary
-                        edit_model['description'] = detailed_desc
-                        edit_model['detection_target'] = detection_target
-                        edit_model['threat_tags'] = threat_tags
-                        edit_model['required_fields'] = [f.strip() for f in req_fields.split(',') if f.strip()]
-                        edit_model['updated_at'] = datetime.now().strftime("%Y-%m-%d")
-                        edit_model['mitre_tactics'] = [t.strip() for t in mitre_tactics.split(',') if t.strip()]
-                        edit_model['mitre_techniques'] = [t.strip() for t in mitre_techniques.split(',') if t.strip()]
-                        edit_model['parameters'] = model_params
-                        
-                        # 파일이 새로 업로드되었으면 업데이트
-                        if uploaded_file:
-                            file_size = f"{uploaded_file.size/(1024*1024):.2f} MB"
-                            edit_model['size'] = file_size
-                            edit_model['has_file'] = True
-                            
-                            if uploaded_file.type == "application/json":
-                                store["model_files"][edit_model['id']] = {
-                                    'filename': uploaded_file.name,
-                                    'data': uploaded_file.getvalue(),
-                                    'type': uploaded_file.type
-                                }
-                            else:
-                                store["model_files"][edit_model['id']] = {
-                                    'filename': uploaded_file.name,
-                                    'data': uploaded_file.getvalue(),
-                                    'type': uploaded_file.type
-                                }
-                        
-                        # JSON 설정 업데이트
-                        try:
-                            if dataset_cfg: edit_model['dataset_settings'] = json.loads(dataset_cfg)
-                            if trigger_cfg: edit_model['trigger_settings'] = json.loads(trigger_cfg)
-                        except: pass
-                        
-                        st.success(f"✅ '{model_name}' 수정 완료!")
+        with tab1:
+            if st.session_state.get('edit_mode') and st.session_state.get('editing_model_id'):
+                edit_model = next((m for m in store["models"] if m['id'] == st.session_state.editing_model_id), None)
+                if edit_model:
+                    st.markdown("### ✏️ 모델 수정")
+                    st.info(f"'{edit_model['name']}' 모델을 수정하고 있습니다.")
+                    if st.button("← 수정 취소", key="cancel_edit"):
                         st.session_state.edit_mode = False
                         st.session_state.editing_model_id = None
-                        if '_jd_cache' in st.session_state:
-                            del st.session_state['_jd_cache']
-                    
-                    # ========== 신규 등록 모드일 때 (기존 코드 유지) ==========
-                    else:
-                        new_id = max([m['id'] for m in store["models"]], default=0) + 1
-                        file_size = "0 MB"
-                        if uploaded_file:
-                            file_size = f"{uploaded_file.size/(1024*1024):.2f} MB"
-                            # JSON 파일이면 원본 JSON 저장, 아니면 바이너리 저장
-                            if uploaded_file.type == "application/json":
-                                store["model_files"][new_id] = {
-                                    'filename': uploaded_file.name,
-                                    'data': uploaded_file.getvalue(),
-                                    'type': uploaded_file.type
-                                }
-                            else:
-                                store["model_files"][new_id] = {
-                                    'filename': uploaded_file.name,
-                                    'data': uploaded_file.getvalue(),
-                                    'type': uploaded_file.type
-                                }
-                        elif jd and 'raw_json' in jd:
-                            # JSON 자동 입력 시 원본 JSON 저장
-                            store["model_files"][new_id] = {
-                                'filename': f"{model_name}_config.json",
-                                'data': json.dumps(jd['raw_json'], indent=2, ensure_ascii=False).encode('utf-8'),
-                                'type': 'application/json'
-                            }
-
-                        new_model = {
-                            'id': new_id, 'name': model_name, 'algorithm': algorithm, 'type': model_type,
-                            'log_type': log_type, 'version': model_version, 'size': file_size,
-                            'model_id': f"model_{uuid.uuid4().hex[:8]}", 'status': model_status,
-                            'summary': summary, 'description': detailed_desc, 'detection_target': detection_target,
-                            'threat_tags': threat_tags, 'required_fields': [f.strip() for f in req_fields.split(',') if f.strip()],
-                            'created_at': datetime.now().strftime("%Y-%m-%d"), 'updated_at': datetime.now().strftime("%Y-%m-%d"),
-                            'downloads': 0, 'views': 0, 'has_file': uploaded_file is not None or (jd and 'raw_json' in jd),
-                            'mitre_tactics': [t.strip() for t in mitre_tactics.split(',') if t.strip()],
-                            'mitre_techniques': [t.strip() for t in mitre_techniques.split(',') if t.strip()],
-                            'parameters': model_params, 'features': []
-                        }
-                        try:
-                            if dataset_cfg: new_model['dataset_settings'] = json.loads(dataset_cfg)
-                            if trigger_cfg: new_model['trigger_settings'] = json.loads(trigger_cfg)
-                        except: pass
-
-                        store["models"].append(new_model)
-                        st.success(f"✅ '{model_name}' 등록 완료!")
-                        if '_jd_cache' in st.session_state:
-                            del st.session_state['_jd_cache']
+                        st.rerun()
                 else:
-                    st.error("⚠️ 필수 항목(*)을 모두 입력해주세요")
-    
-    # mc3컬럼에 수정 버튼 추가 버튼 클릭시 edit_mode와 editing_model_id를 세션 변수에 저장하고 rerun
-    with tab2: 
-        st.markdown("### 등록된 모델 관리")
-        if st.session_state.get('edit_mode') and st.session_state.get('editing_model_id'):
-            editing = next((m for m in store["models"] if m['id'] == st.session_state.editing_model_id), None)
-            if editing:
-                st.info(f"✏️ '{editing['name']}' 수정 모드입니다. 상단 '➕ 모델 등록' 탭에서 내용을 수정해 주세요.")
-        if not store["models"]:
-            st.info("등록된 모델이 없습니다.")
-        else:
-            sf = st.selectbox("상태", ["전체","active","pending","test"], format_func=lambda x: {"전체":"전체","active":"사용","pending":"보류","test":"테스트"}.get(x,x))
-            ml = store["models"] if sf == "전체" else [m for m in store["models"] if m.get('status','active') == sf]
+                    st.error("수정할 모델을 찾을 수 없습니다.")
+                    st.session_state.edit_mode = False
+                    st.session_state.editing_model_id = None
+            else:
+                st.markdown("### 새 모델 등록")
             
-            for model in ml:
-                with st.container(border=True):
-                    mc1,mc2,mc3 = st.columns([3,2,1])
-                    with mc1:
-                        st.markdown(f"### {model['name']}")
-                        st.markdown(f"**{model['version']}** | {model['algorithm']} | {model['type']}")
-                        st.markdown(" ".join([f'<span class="b-threat">{t}</span>' for t in model.get('threat_tags',[])]), unsafe_allow_html=True)
-                    with mc2:
-                        st.markdown(f"등록: {model['created_at']} | 업데이트: {model['updated_at']}")
-                        st.markdown(f"⬇️ {model.get('downloads',0)} | 👁️ {model.get('views',0)}")
-                    with mc3:
-                        # ✏️ 수정 버튼 추가
-                        if st.button("✏️ 수정", key=f"edit_{model['id']}", use_container_width=True):
-                            st.session_state.edit_mode = True
-                            st.session_state.editing_model_id = model['id']
-                            st.session_state.open_register_tab = True
-                            st.rerun()
-                        
-                        ns = st.selectbox("상태",["active","pending","test"],index=["active","pending","test"].index(model.get('status','active')),format_func=lambda x:{"active":"사용","pending":"보류","test":"테스트"}[x],key=f"st_{model['id']}")
-                        if ns != model.get('status','active'):
-                            model['status'] = ns; model['updated_at'] = datetime.now().strftime("%Y-%m-%d"); st.rerun()
-                        
-                        if st.button("🗑️ 삭제", key=f"d_{model['id']}", use_container_width=True):
-                            st.session_state[f"cd_{model['id']}"] = True
-                        
-                        if st.session_state.get(f"cd_{model['id']}"):
-                            st.warning(f"'{model['name']}' 삭제?")
-                            dc1,dc2 = st.columns(2)
-                            with dc1:
-                                if st.button("확인",key=f"cf_{model['id']}",type="primary"):
-                                    store["models"] = [m for m in store["models"] if m['id']!=model['id']]
-                                    if model['id'] in store["model_files"]:
-                                        del store["model_files"][model['id']]
-                                    st.rerun()
-                            with dc2:
-                                if st.button("취소",key=f"cc_{model['id']}"):
-                                    st.session_state[f"cd_{model['id']}"]=False; st.rerun()
+            if not st.session_state.get('edit_mode'):
+                reg = st.radio("등록 방식:", ["🖋️ 수동 입력","📄 JSON 파일 자동 입력"], horizontal=True)
+            else:
+                reg = "🖋️ 수동 입력"
 
-    with tab3:
-        st.markdown("### 피드백")
-        if not store["feedback"]: st.info("피드백이 없습니다.")
+            jd = None
+            if reg == "📄 JSON 파일 자동 입력":
+                st.markdown("#### 1️⃣ JSON 설정 파일 업로드")
+                uj = st.file_uploader("모델 설정 JSON 파일을 업로드하세요", type=['json'], key="json_up")
+                if uj:
+                    try:
+                        raw = json.load(uj)
+                        d0 = raw.get('data', [{}])
+                        if isinstance(d0, list): d0 = d0[0] if d0 else {}
+                        rg = raw.get('rulegroups', [{}])
+                        if isinstance(rg, list): rg = rg[0] if rg else {}
+
+                        jd = {
+                            'ruleName': d0.get('ruleName', ''),
+                            'note': d0.get('note', ''),
+                            'ruleGroupName': rg.get('name', '') or d0.get('ruleGroupName', ''),
+                            'algorithm': d0.get('algorithm', ''),
+                            'algorithmSettings': d0.get('algorithmSettings', {}),
+                            'logType': d0.get('logType', []),
+                            'formatTime': d0.get('formatTime', {}),
+                            'datasetAnalyzeType': d0.get('datasetAnalyzeType', ''),
+                            'datasetSettings': d0.get('datasetSettings', {}),
+                            'fadingFactor': d0.get('fadingFactor', ''),
+                            'boundType': d0.get('boundType', ''),
+                            'sensitivity': d0.get('sensitivity', ''),
+                            'mitre_list': d0.get('options', {}).get('mitre', []),
+                            'fields': raw.get('fields', []),
+                            'raw_json': raw
+                        }
+                        st.session_state['_jd_cache'] = jd
+                        st.success(f"✅ 파일 로드 완료! 모델명: **{jd['ruleName']}**")
+                        with st.expander("📋 파싱된 주요 정보"):
+                            st.json({k:v for k,v in jd.items() if k not in ['fields', 'raw_json']})
+                    except Exception as e:
+                        st.error(f"❌ JSON 파싱 오류: {e}")
+                elif '_jd_cache' in st.session_state:
+                    jd = st.session_state['_jd_cache']
+                st.markdown("#### 2️⃣ 자동 입력된 정보 확인 및 수정")
+            else:
+                st.markdown("#### 모델 정보 입력")
+                if '_jd_cache' in st.session_state:
+                    del st.session_state['_jd_cache']
+
+            edit_model = None
+            if st.session_state.get('edit_mode') and st.session_state.get('editing_model_id'):
+                edit_model = next((m for m in store["models"] if m['id'] == st.session_state.editing_model_id), None)
+
+            with st.form("reg_form"):
+                c1, c2 = st.columns(2)
+                with c1:
+                    default_name = edit_model['name'] if edit_model else (jd['ruleName'] if jd else '')
+                    model_name = st.text_input("모델명 *", value=default_name)
+                    
+                    default_target = edit_model.get('detection_target', '') if edit_model else (jd['ruleGroupName'] if jd else '')
+                    detection_target = st.text_input("탐지 목적 *", value=default_target)
+                    
+                    default_version = edit_model.get('version', 'v1.0.0') if edit_model else "v1.0.0"
+                    model_version = st.text_input("버전 *", value=default_version)
+
+                    type_opts = ["지도학습","비지도학습"]
+                    auto_type_idx = 0
+                    if edit_model:
+                        if edit_model.get('type') in type_opts:
+                            auto_type_idx = type_opts.index(edit_model['type'])
+                    elif jd:
+                        alg = jd.get('algorithm','').lower()
+                        if alg in ['randomforest','svm','logisticregression','xgboost','decisiontree']:
+                            auto_type_idx = 0
+                        elif alg in ['isolationforest','robustrandomcutforest','rrcf','autoencoder','dbscan','oneclasssvm']:
+                            auto_type_idx = 1
+                    model_type = st.selectbox("모델 유형 *", type_opts, index=auto_type_idx)
+
+                    alg_map = {
+                        "지도학습": ["Random Forest","SVM","Logistic Regression","XGBoost","Decision Tree"],
+                        "비지도학습": ["RRCF","Isolation Forest","Autoencoder","DBSCAN","One-Class SVM"]
+                    }
+                    auto_alg_idx = 0
+                    if edit_model:
+                        if edit_model.get('algorithm') in alg_map[model_type]:
+                            auto_alg_idx = alg_map[model_type].index(edit_model['algorithm'])
+                    elif jd:
+                        name_map = {'robustrandomcutforest':'RRCF','rrcf':'RRCF','isolationforest':'Isolation Forest','randomforest':'Random Forest','svm':'SVM','xgboost':'XGBoost','autoencoder':'Autoencoder','dbscan':'DBSCAN','decisiontree':'Decision Tree','logisticregression':'Logistic Regression','oneclasssvm':'One-Class SVM'}
+                        mapped = name_map.get(jd.get('algorithm','').lower(), '')
+                        if mapped in alg_map[model_type]:
+                            auto_alg_idx = alg_map[model_type].index(mapped)
+                    algorithm = st.selectbox("알고리즘 *", alg_map[model_type], index=auto_alg_idx)
+
+                with c2:
+                    log_opts = ["WAF","WEB","Firewall","IDS","Syslog","Network","EDR"]
+                    auto_log_idx = 0
+                    if edit_model:
+                        if edit_model.get('log_type') in log_opts:
+                            auto_log_idx = log_opts.index(edit_model['log_type'])
+                    elif jd and jd.get('logType'):
+                        lt = jd['logType'][0].lower() if isinstance(jd['logType'], list) and jd['logType'] else ''
+                        lmap = {'fw':'Firewall','waf':'WAF','web':'WEB','ids':'IDS','ips':'IDS','syslog':'Syslog','network':'Network','edr':'EDR'}
+                        ml = lmap.get(lt, '')
+                        if ml in log_opts: auto_log_idx = log_opts.index(ml)
+                    log_type = st.selectbox("로그 타입 *", log_opts, index=auto_log_idx)
+
+                    threat_options = ["SQL Injection","XSS","DDoS","Malware","Data Exfiltration","Brute Force","웹쉘","이상 트래픽","내부정보유출","Command Injection"]
+                    default_threats = edit_model.get('threat_tags', []) if edit_model else []
+                    for tag in default_threats:
+                        if tag not in threat_options:
+                            threat_options.append(tag)
+                    threat_tags = st.multiselect("위협 태그 *", threat_options, default=default_threats)
+
+                    m_tactics_val = ''
+                    if edit_model:
+                        m_tactics_val = ', '.join(edit_model.get('mitre_tactics', []))
+                    elif jd and jd.get('mitre_list') and isinstance(jd['mitre_list'], list):
+                        tacs = [m.get('tacticsId','') for m in jd['mitre_list'] if isinstance(m,dict) and m.get('tacticsId')]
+                        m_tactics_val = ', '.join(tacs)
+                    mitre_tactics = st.text_input("MITRE Tactics", value=m_tactics_val)
+                    
+                    m_tech_val = ''
+                    if edit_model:
+                        m_tech_val = ', '.join(edit_model.get('mitre_techniques', []))
+                    elif jd and jd.get('mitre_list') and isinstance(jd['mitre_list'], list):
+                        techs = [m.get('techniquesId','') for m in jd['mitre_list'] if isinstance(m,dict) and m.get('techniquesId')]
+                        m_tech_val = ', '.join(techs)
+                    mitre_techniques = st.text_input("MITRE Techniques", value=m_tech_val)
+
+                    default_summary = edit_model.get('summary', '') if edit_model else (jd['note'] if jd else '')
+                    summary = st.text_input("한줄 설명 *", value=default_summary)
+                    
+                    status_opts = ["active","pending","test"]
+                    status_idx = 0
+                    if edit_model and edit_model.get('status') in status_opts:
+                        status_idx = status_opts.index(edit_model['status'])
+                    model_status = st.selectbox("상태 *", status_opts, index=status_idx, format_func=lambda x: {"active":"사용","pending":"보류","test":"테스트"}[x])
+
+                default_desc = edit_model.get('description', '') if edit_model else ''
+                detailed_desc = st.text_area("상세 설명", value=default_desc, height=80)
+                
+                uploaded_file = st.file_uploader("모델 파일 업로드", type=['pkl','h5','pt','pth','onnx','joblib','json'], key="mf_up")
+
+                with st.expander("🔧 고급 설정 (파라미터 / 데이터셋 / 트리거)", expanded=True if jd else False):
+                    ca, cb = st.columns(2)
+                    with ca:
+                        if edit_model:
+                            auto_params = edit_model.get('parameters', '{}')
+                        else:
+                            auto_params = json.dumps(jd['algorithmSettings'], indent=2, ensure_ascii=False) if jd and jd.get('algorithmSettings') else '{}'
+                        model_params = st.text_area("모델 파라미터 (JSON)", value=auto_params, height=120)
+
+                        auto_fields = ""
+                        if edit_model:
+                            auto_fields = ", ".join(edit_model.get('required_fields', []))
+                        elif jd and jd.get('datasetSettings'):
+                            ds = jd['datasetSettings']
+                            parts = []
+                            parts.extend(ds.get('features', []))
+                            parts.extend(ds.get('keyFields', []))
+                            parts.extend(ds.get('anomalySubject', ds.get('anomalySplit', [])))
+                            auto_fields = ", ".join(parts) if parts else ""
+                        req_fields = st.text_area("필수 로그 필드 (쉼표 구분)", value=auto_fields or "timestamp, src_ip, dst_ip")
+
+                    with cb:
+                        auto_ds = {}
+                        if edit_model:
+                            auto_ds = edit_model.get('dataset_settings', {})
+                        elif jd:
+                            auto_ds = {
+                                "logType": jd.get('logType', []),
+                                "formatTime": jd.get('formatTime', {}),
+                                "datasetAnalyzeType": jd.get('datasetAnalyzeType', ''),
+                                "datasetSettings": jd.get('datasetSettings', {})
+                            }
+                        dataset_cfg = st.text_area("데이터셋 설정 (JSON)", value=json.dumps(auto_ds, indent=2, ensure_ascii=False) if auto_ds else '{}', height=120)
+
+                        auto_tr = {}
+                        if edit_model:
+                            auto_tr = edit_model.get('trigger_settings', {})
+                        elif jd:
+                            for k in ['fadingFactor','boundType','sensitivity']:
+                                v = jd.get(k, '')
+                                if v != '': auto_tr[k] = v
+                        trigger_cfg = st.text_area("트리거 설정 (JSON)", value=json.dumps(auto_tr, indent=2, ensure_ascii=False) if auto_tr else '{}', height=100)
+
+                submit_label = "💾 수정 완료" if edit_model else "📦 모델 등록"
+                submitted = st.form_submit_button(submit_label, type="primary", use_container_width=True)
+
+                if submitted:
+                    if model_name and detection_target and threat_tags and summary:
+                        if edit_model:
+                            edit_model['name'] = model_name
+                            edit_model['algorithm'] = algorithm
+                            edit_model['type'] = model_type
+                            edit_model['log_type'] = log_type
+                            edit_model['version'] = model_version
+                            edit_model['status'] = model_status
+                            edit_model['summary'] = summary
+                            edit_model['description'] = detailed_desc
+                            edit_model['detection_target'] = detection_target
+                            edit_model['threat_tags'] = threat_tags
+                            edit_model['required_fields'] = [f.strip() for f in req_fields.split(',') if f.strip()]
+                            edit_model['updated_at'] = datetime.now().strftime("%Y-%m-%d")
+                            edit_model['mitre_tactics'] = [t.strip() for t in mitre_tactics.split(',') if t.strip()]
+                            edit_model['mitre_techniques'] = [t.strip() for t in mitre_techniques.split(',') if t.strip()]
+                            edit_model['parameters'] = model_params
+                            
+                            if uploaded_file:
+                                file_size = f"{uploaded_file.size/(1024*1024):.2f} MB"
+                                edit_model['size'] = file_size
+                                edit_model['has_file'] = True
+                                
+                                store["model_files"][edit_model['id']] = {
+                                    'filename': uploaded_file.name,
+                                    'data': uploaded_file.getvalue(),
+                                    'type': uploaded_file.type
+                                }
+                            
+                            try:
+                                if dataset_cfg: edit_model['dataset_settings'] = json.loads(dataset_cfg)
+                                if trigger_cfg: edit_model['trigger_settings'] = json.loads(trigger_cfg)
+                            except: pass
+                            
+                            st.success(f"✅ '{model_name}' 수정 완료!")
+                            st.session_state.edit_mode = False
+                            st.session_state.editing_model_id = None
+                            if '_jd_cache' in st.session_state:
+                                del st.session_state['_jd_cache']
+                        
+                        else:
+                            new_id = max([m['id'] for m in store["models"]], default=0) + 1
+                            file_size = "0 MB"
+                            if uploaded_file:
+                                file_size = f"{uploaded_file.size/(1024*1024):.2f} MB"
+                                store["model_files"][new_id] = {
+                                    'filename': uploaded_file.name,
+                                    'data': uploaded_file.getvalue(),
+                                    'type': uploaded_file.type
+                                }
+                            elif jd and 'raw_json' in jd:
+                                store["model_files"][new_id] = {
+                                    'filename': f"{model_name}_config.json",
+                                    'data': json.dumps(jd['raw_json'], indent=2, ensure_ascii=False).encode('utf-8'),
+                                    'type': 'application/json'
+                                }
+
+                            new_model = {
+                                'id': new_id, 'name': model_name, 'algorithm': algorithm, 'type': model_type,
+                                'log_type': log_type, 'version': model_version, 'size': file_size,
+                                'model_id': f"model_{uuid.uuid4().hex[:8]}", 'status': model_status,
+                                'summary': summary, 'description': detailed_desc, 'detection_target': detection_target,
+                                'threat_tags': threat_tags, 'required_fields': [f.strip() for f in req_fields.split(',') if f.strip()],
+                                'created_at': datetime.now().strftime("%Y-%m-%d"), 'updated_at': datetime.now().strftime("%Y-%m-%d"),
+                                'downloads': 0, 'views': 0, 'has_file': uploaded_file is not None or (jd and 'raw_json' in jd),
+                                'mitre_tactics': [t.strip() for t in mitre_tactics.split(',') if t.strip()],
+                                'mitre_techniques': [t.strip() for t in mitre_techniques.split(',') if t.strip()],
+                                'parameters': model_params, 'features': []
+                            }
+                            try:
+                                if dataset_cfg: new_model['dataset_settings'] = json.loads(dataset_cfg)
+                                if trigger_cfg: new_model['trigger_settings'] = json.loads(trigger_cfg)
+                            except: pass
+
+                            store["models"].append(new_model)
+                            st.success(f"✅ '{model_name}' 등록 완료!")
+                            if '_jd_cache' in st.session_state:
+                                del st.session_state['_jd_cache']
+                    else:
+                        st.error("⚠️ 필수 항목(*)을 모두 입력해주세요")
+        
+        with tab2: 
+            st.markdown("### 등록된 모델 관리")
+            if st.session_state.get('edit_mode') and st.session_state.get('editing_model_id'):
+                editing = next((m for m in store["models"] if m['id'] == st.session_state.editing_model_id), None)
+                if editing:
+                    st.info(f"✏️ '{editing['name']}' 수정 모드입니다. 상단 '➕ 모델 등록' 탭에서 내용을 수정해 주세요.")
+            if not store["models"]:
+                st.info("등록된 모델이 없습니다.")
+            else:
+                sf = st.selectbox("상태", ["전체","active","pending","test"], format_func=lambda x: {"전체":"전체","active":"사용","pending":"보류","test":"테스트"}.get(x,x))
+                ml = store["models"] if sf == "전체" else [m for m in store["models"] if m.get('status','active') == sf]
+                
+                for model in ml:
+                    with st.container(border=True):
+                        mc1,mc2,mc3 = st.columns([3,2,1])
+                        with mc1:
+                            st.markdown(f"### {model['name']}")
+                            st.markdown(f"**{model['version']}** | {model['algorithm']} | {model['type']}")
+                            st.markdown(" ".join([f'<span class="b-threat">{t}</span>' for t in model.get('threat_tags',[])]), unsafe_allow_html=True)
+                        with mc2:
+                            st.markdown(f"등록: {model['created_at']} | 업데이트: {model['updated_at']}")
+                            st.markdown(f"⬇️ {model.get('downloads',0)} | 👁️ {model.get('views',0)}")
+                        with mc3:
+                            if st.button("✏️ 수정", key=f"edit_{model['id']}", use_container_width=True):
+                                st.session_state.edit_mode = True
+                                st.session_state.editing_model_id = model['id']
+                                st.session_state.open_register_tab = True
+                                st.rerun()
+                            
+                            ns = st.selectbox("상태",["active","pending","test"],index=["active","pending","test"].index(model.get('status','active')),format_func=lambda x:{"active":"사용","pending":"보류","test":"테스트"}[x],key=f"st_{model['id']}")
+                            if ns != model.get('status','active'):
+                                model['status'] = ns; model['updated_at'] = datetime.now().strftime("%Y-%m-%d"); st.rerun()
+                            
+                            if st.button("🗑️ 삭제", key=f"d_{model['id']}", use_container_width=True):
+                                st.session_state[f"cd_{model['id']}"] = True
+                            
+                            if st.session_state.get(f"cd_{model['id']}"):
+                                st.warning(f"'{model['name']}' 삭제?")
+                                dc1,dc2 = st.columns(2)
+                                with dc1:
+                                    if st.button("확인",key=f"cf_{model['id']}",type="primary"):
+                                        store["models"] = [m for m in store["models"] if m['id']!=model['id']]
+                                        if model['id'] in store["model_files"]:
+                                            del store["model_files"][model['id']]
+                                        st.rerun()
+                                with dc2:
+                                    if st.button("취소",key=f"cc_{model['id']}"):
+                                        st.session_state[f"cd_{model['id']}"]=False; st.rerun()
+
+        with tab3:
+            st.markdown("### 피드백")
+            if not store["feedback"]: st.info("피드백이 없습니다.")
+            else:
+                avg = sum(f['rating'] for f in store["feedback"]) / len(store["feedback"])
+                fc1,fc2 = st.columns(2)
+                with fc1: st.metric("총 피드백", f"{len(store['feedback'])}개")
+                with fc2: st.metric("평균 평점", f"{avg:.1f}/5.0")
+                for fb in reversed(store["feedback"]):
+                    with st.container(border=True):
+                        st.markdown(f"**{fb['model_name']}** — {'⭐'*fb['rating']}")
+                        st.markdown(f"_{fb['feedback']}_ ({fb['user']}, {fb['timestamp']})")
+
+        with tab4:
+            st.markdown("### 📊 통계")
+            c1,c2,c3,c4 = st.columns(4)
+            with c1: st.metric("전체", len(store["models"]))
+            with c2: st.metric("사용 중", len([m for m in store["models"] if m.get('status','active')=='active']))
+            with c3: st.metric("다운로드", f"{sum(m.get('downloads',0) for m in store['models']):,}")
+            with c4: st.metric("조회수", f"{sum(m.get('views',0) for m in store['models']):,}")
+            if store["models"]:
+                cc1,cc2 = st.columns(2)
+                with cc1:
+                    lc = {}
+                    for m in store["models"]: lc[m['log_type']] = lc.get(m['log_type'],0)+1
+                    st.bar_chart(pd.DataFrame(list(lc.items()), columns=['타입','수']).set_index('타입'))
+                with cc2:
+                    tc = {}
+                    for m in store["models"]: tc[m['type']] = tc.get(m['type'],0)+1
+                    st.bar_chart(pd.DataFrame(list(tc.items()), columns=['유형','수']).set_index('유형'))
+
+    # ==================== 공지사항 ====================
+    elif menu == "notice":
+        st.markdown("## 공지사항")
+        st.caption("IGLOO AI Model Hub 운영 및 업데이트 공지")
+        notices = [
+            {'title':'🔔 IGLOO AI Model Hub v2.0 정식 출시','date':'2024-02-11','author':'관리자','content':'전면 개편된 UI/UX, 향상된 검색/필터링, 웹 기반 JSON 편집기, 피드백 시스템.','imp':True},
+            {'title':'📋 JSON 설정 파일 편집 기능 추가','date':'2024-02-10','author':'관리자','content':'환경별 로그 필드명 차이를 해소하기 위해 웹 기반 JSON 편집 기능을 추가했습니다.','imp':False},
+            {'title':'🛠️ 정기 시스템 점검 안내','date':'2024-02-08','author':'관리자','content':'2024년 2월 15일 02:00~06:00 점검 예정.','imp':False}
+        ]
+        for n in notices:
+            with st.container(border=True):
+                tc1,tc2 = st.columns([3,1])
+                with tc1: st.markdown(f"### {n['title']}")
+                with tc2: st.markdown(f"**{n['date']}** · {n['author']}")
+                with st.expander("자세히 보기", expanded=n['imp']): st.markdown(n['content'])
+
+    # ==================== Docs ====================
+    elif menu == "docs" and _g("page","") != "view":
+        st.markdown("## Documentation")
+        st.caption("IGLOO AI Model Hub 사용 가이드 및 기술 문서")
+        st.markdown("<br>", unsafe_allow_html=True)
+
+        # sel_cat 값은 이미 상단 좌측 패널 로직에서 설정됨
+        dl = store["docs"] if sel_cat == "전체" else [d for d in store["docs"] if d['category'] == sel_cat]
+
+        if dl:
+            st.markdown("---")
+            hc = st.columns([0.4, 4.5, 1.2, 1, 1, 0.6])
+            with hc[0]: st.markdown("**#**")
+            with hc[1]: st.markdown("**제목**")
+            with hc[2]: st.markdown("**카테고리**")
+            with hc[3]: st.markdown("**작성자**")
+            with hc[4]: st.markdown("**작성일**")
+            with hc[5]: st.markdown("**조회**")
+            st.markdown("---")
+
+            for doc in dl:
+                rc = st.columns([0.4, 4.5, 1.2, 1, 1, 0.6])
+                with rc[0]: st.caption(str(doc['id']))
+                with rc[1]:
+                    fi = " 📎" if doc.get('file_attached') else ""
+                    if st.button(f"{doc['title']}{fi}", key=f"doc_{doc['id']}"):
+                        st.query_params.update({"menu":"docs","page":"view","doc_id":str(doc['id']),"auth":"1"})
+                        st.rerun()
+                with rc[2]: st.caption(doc['category'])
+                with rc[3]: st.caption(doc['author'])
+                with rc[4]: st.caption(doc['date'])
+                with rc[5]: st.caption(str(doc['views']))
         else:
-            avg = sum(f['rating'] for f in store["feedback"]) / len(store["feedback"])
-            fc1,fc2 = st.columns(2)
-            with fc1: st.metric("총 피드백", f"{len(store['feedback'])}개")
-            with fc2: st.metric("평균 평점", f"{avg:.1f}/5.0")
-            for fb in reversed(store["feedback"]):
-                with st.container(border=True):
-                    st.markdown(f"**{fb['model_name']}** — {'⭐'*fb['rating']}")
-                    st.markdown(f"_{fb['feedback']}_ ({fb['user']}, {fb['timestamp']})")
+            st.markdown('<div class="empty"><div class="empty-i">📄</div><div class="empty-t">등록된 문서가 없습니다</div></div>', unsafe_allow_html=True)
 
-    with tab4:
-        st.markdown("### 📊 통계")
-        c1,c2,c3,c4 = st.columns(4)
-        with c1: st.metric("전체", len(store["models"]))
-        with c2: st.metric("사용 중", len([m for m in store["models"] if m.get('status','active')=='active']))
-        with c3: st.metric("다운로드", f"{sum(m.get('downloads',0) for m in store['models']):,}")
-        with c4: st.metric("조회수", f"{sum(m.get('views',0) for m in store['models']):,}")
-        if store["models"]:
-            cc1,cc2 = st.columns(2)
-            with cc1:
-                lc = {}
-                for m in store["models"]: lc[m['log_type']] = lc.get(m['log_type'],0)+1
-                st.bar_chart(pd.DataFrame(list(lc.items()), columns=['타입','수']).set_index('타입'))
-            with cc2:
-                tc = {}
-                for m in store["models"]: tc[m['type']] = tc.get(m['type'],0)+1
-                st.bar_chart(pd.DataFrame(list(tc.items()), columns=['유형','수']).set_index('유형'))
+    elif menu == "docs" and _g("page","") == "view":
+        did = int(_g("doc_id","0"))
+        doc = next((d for d in store["docs"] if d['id'] == did), None)
+        if doc:
+            doc['views'] += 1
+            st.markdown(f"## {doc['title']}")
+            st.markdown(f"**{doc['category']}** · {doc['author']} · {doc['date']} · 조회 {doc['views']}")
+            st.markdown("---")
+            st.markdown(doc['content'])
+            if doc.get('file_attached'):
+                st.download_button("📎 첨부파일", data=doc['content'].encode('utf-8'), file_name=f"{doc['title']}.md", mime="text/markdown")
+        else:
+            st.error("문서를 찾을 수 없습니다.")
 
-# ==================== 공지사항 ====================
-elif menu == "notice":
-    st.markdown("## 공지사항")
-    st.caption("IGLOO AI Model Hub 운영 및 업데이트 공지")
-    notices = [
-        {'title':'🔔 IGLOO AI Model Hub v2.0 정식 출시','date':'2024-02-11','author':'관리자','content':'전면 개편된 UI/UX, 향상된 검색/필터링, 웹 기반 JSON 편집기, 피드백 시스템.','imp':True},
-        {'title':'📋 JSON 설정 파일 편집 기능 추가','date':'2024-02-10','author':'관리자','content':'환경별 로그 필드명 차이를 해소하기 위해 웹 기반 JSON 편집 기능을 추가했습니다.','imp':False},
-        {'title':'🛠️ 정기 시스템 점검 안내','date':'2024-02-08','author':'관리자','content':'2024년 2월 15일 02:00~06:00 점검 예정.','imp':False}
-    ]
-    for n in notices:
-        with st.container(border=True):
-            tc1,tc2 = st.columns([3,1])
-            with tc1: st.markdown(f"### {n['title']}")
-            with tc2: st.markdown(f"**{n['date']}** · {n['author']}")
-            with st.expander("자세히 보기", expanded=n['imp']): st.markdown(n['content'])
-
-# ==================== Docs (돌아가기 버튼 제거) ====================
-elif menu == "docs" and _g("page","") != "view":
-    st.markdown("## Documentation")
-    st.caption("IGLOO AI Model Hub 사용 가이드 및 기술 문서")
-    st.markdown("<br>", unsafe_allow_html=True)
-
-    cats = sorted(set([d['category'] for d in store["docs"]]))
-    sel_cat = st.selectbox("카테고리", ["전체"] + cats, key="dc")
-    dl = store["docs"] if sel_cat == "전체" else [d for d in store["docs"] if d['category'] == sel_cat]
-
-    if dl:
-        st.markdown("---")
-        hc = st.columns([0.4, 4.5, 1.2, 1, 1, 0.6])
-        with hc[0]: st.markdown("**#**")
-        with hc[1]: st.markdown("**제목**")
-        with hc[2]: st.markdown("**카테고리**")
-        with hc[3]: st.markdown("**작성자**")
-        with hc[4]: st.markdown("**작성일**")
-        with hc[5]: st.markdown("**조회**")
-        st.markdown("---")
-
-        for doc in dl:
-            rc = st.columns([0.4, 4.5, 1.2, 1, 1, 0.6])
-            with rc[0]:
-                st.caption(str(doc['id']))
-            with rc[1]:
-                fi = " 📎" if doc.get('file_attached') else ""
-                if st.button(f"{doc['title']}{fi}", key=f"doc_{doc['id']}"):
-                    st.query_params.update({"menu":"docs","page":"view","doc_id":str(doc['id']),"auth":"1"})
-                    st.rerun()
-            with rc[2]:
-                st.caption(doc['category'])
-            with rc[3]:
-                st.caption(doc['author'])
-            with rc[4]:
-                st.caption(doc['date'])
-            with rc[5]:
-                st.caption(str(doc['views']))
-    else:
-        st.markdown('<div class="empty"><div class="empty-i">📄</div><div class="empty-t">등록된 문서가 없습니다</div></div>', unsafe_allow_html=True)
-
-elif menu == "docs" and _g("page","") == "view":
-    did = int(_g("doc_id","0"))
-    doc = next((d for d in store["docs"] if d['id'] == did), None)
-    if doc:
-        doc['views'] += 1
-        st.markdown(f"## {doc['title']}")
-        st.markdown(f"**{doc['category']}** · {doc['author']} · {doc['date']} · 조회 {doc['views']}")
-        st.markdown("---")
-        st.markdown(doc['content'])
-        if doc.get('file_attached'):
-            st.download_button("📎 첨부파일", data=doc['content'].encode('utf-8'), file_name=f"{doc['title']}.md", mime="text/markdown")
-    else:
-        st.error("문서를 찾을 수 없습니다.")
-
-# ==================== Docs 작성 (돌아가기 버튼 제거) ====================
-elif menu == "docs_write":
-    st.markdown("## ✏️ 새 문서 작성")
-    with st.form("doc_form"):
-        dt = st.text_input("문서 제목 *")
-        dcat = st.selectbox("카테고리 *", ["사용자 가이드","기술 문서","운영 가이드","API 문서","FAQ"])
-        dcont = st.text_area("내용 *", height=300, placeholder="마크다운 형식으로 작성 가능합니다.")
-        dfile = st.file_uploader("첨부파일 (선택)", type=['pdf','docx','txt','md','json','zip'])
-        if st.form_submit_button("📋 문서 등록", type="primary"):
-            if dt and dcont:
-                store["docs"].append({'id':len(store["docs"])+1,'title':dt,'category':dcat,'author':user_name,'date':datetime.now().strftime("%Y-%m-%d"),'views':0,'content':dcont,'file_attached':dfile is not None})
-                st.success(f"✅ '{dt}' 등록 완료!")
-            else: st.error("⚠️ 필수 항목을 입력해주세요")
+    # ==================== Docs 작성 ====================
+    elif menu == "docs_write":
+        st.markdown("## ✏️ 새 문서 작성")
+        with st.form("doc_form"):
+            dt = st.text_input("문서 제목 *")
+            dcat = st.selectbox("카테고리 *", ["사용자 가이드","기술 문서","운영 가이드","API 문서","FAQ"])
+            dcont = st.text_area("내용 *", height=300, placeholder="마크다운 형식으로 작성 가능합니다.")
+            dfile = st.file_uploader("첨부파일 (선택)", type=['pdf','docx','txt','md','json','zip'])
+            if st.form_submit_button("📋 문서 등록", type="primary"):
+                if dt and dcont:
+                    store["docs"].append({'id':len(store["docs"])+1,'title':dt,'category':dcat,'author':user_name,'date':datetime.now().strftime("%Y-%m-%d"),'views':0,'content':dcont,'file_attached':dfile is not None})
+                    st.success(f"✅ '{dt}' 등록 완료!")
+                else: st.error("⚠️ 필수 항목을 입력해주세요")
